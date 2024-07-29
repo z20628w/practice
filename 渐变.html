@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>线性渐变</title>
+    <style type="text/css">              
+    </style>      
+</head>
+<body style="display: flex;flex-wrap: wrap;">
+</body>
+<script>
+    let html = "";
+
+    // let arr = ["rgba(113,132,174,1)","rgba(113,173,119,1)","rgba(218,242,229,1)","rgba(82,126,155,1)","rgba(0,89,149,1)"];
+    // let arr = ["rgba(213,225,237,1)","rgba(177,203,228,1)","rgba(125,182,227,1)","rgba(128,131,148,1)","rgba(206,150,123,1)"]
+    // let arr = ["rgba(143,204,235,1)","rgba(32,140,212,1)","rgba(204,168,10,1)","rgba(182,203,220,1)","rgba(115,177,224,1)"]
+    for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        html+=`<div style="width:100px;height:100px;margin:10px;background:${element}"></div>`
+    }
+
+    document.body.innerHTML = html
+</script>
+</html>

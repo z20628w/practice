@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>test</title>
+  <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    #app {
+      padding: 50px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    table {
+      /* border-collapse: collapse; */
+    }
+
+    th {
+      padding: 0 20px;
+    }
+
+    button {
+      align-self: center;
+      margin-top: 50px;
+      background-color: #43aebd;
+      border: none;
+      padding: 10px 50px;
+      border-radius: 5px;
+      box-shadow: 1px 1px 5px #bbb;
+      cursor: pointer;
+      color: #fff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div style="align-self: center;" ref="tableRef">
+      <table border="1" cellspacing="0" cellpadding="0" width="1000">
+        <thead>
+          <th :colspan="colNum" height="50">5月实际产出分析表</th>
+        </thead>
+        <tbody>
+          <tr align="center">
+            <td>工位描述</td>
+            <td>时段</td>
+            <td>时间段</td>
+            <td v-for="item in theda">{{item}}</td>
+            <td>总计</td>
+            <td>最大值</td>
+            <td>最小值</td>
+            <td>平均值</td>
+            <td>结论</td>
+          </tr>
+          <tr v-for="(item, index) in tbody" align="center">
+            <td rowspan="12" v-if="index == 0">{{item.gongWei}}</td>
+            <td rowspan="4" v-if="index == 0 || index == 4 || index == 8">{{item.shid}}</td>
+            <td>{{item.shiJianD}}</td>
+            <td v-for="item1 in item.dataNum">{{item1}}</td>
+            <td v-for="item2 in item.count">{{item2}}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr v-for="item in tfoot" align="center">
+            <td colspan="3" :bgcolor="item.title == '理论需求' ? '#ff4f4f' : '#d1ffcf'">{{item.title}}</td>
+            <td v-for="(item1,index) in item.num"
+              :bgcolor="item.title == '理论需求' ? (index < (item.num.length - 4) ? '#ff4f4f' : '') : (index < (item.num.length - 4) ? '#d1ffcf' : (item.title == '平均产出' ? (index > (item.num.length - 4) ? '#59b2ff' : '') : ''))">
+              {{item1}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <button @click="exportExcel">导出</button>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      theda: {},
+      colNum: 8,
+      tbody: {},
+      tfoot: {},
+    },
+    mounted () {
+      axios.get('data.json').then((res) => {
+        // console.log(res.data.data)
+        this.theda = res.data.theda
+        this.colNum += this.theda.length
+        this.tbody = res.data.tbody
+        this.tfoot = res.data.tfoot
+      })
+    },
+    methods: {
+      exportExcel () {
+        let str = this.$refs.tableRef.innerHTML;
+        const uri = 'data:application/vnd.ms-excel;base64,' + window.btoa(unescape(encodeURIComponent(str)))
+        // 下载
+        const link = document.createElement('a')
+        link.href = uri
+        link.download = '5月报表.xlsx'
+        link.click()
+      },
+    },
+  })
+</script>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> New Document </title>
+    <meta name="Generator" content="EditPlus">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+</head>
+
+<body>
+    <img id="img" src="" alt="">
+
+    <script>
+        // 创建视频标签
+        function video(url = "", num = 1) {
+            /**
+             * num:需要获取视频的第几秒图片
+            */
+
+            let video = document.createElement("video");
+            video.src = url + "#t=" + num;
+            video.controls = "controls";
+            video.oncanplay = function () { img(this) };
+
+        }
+
+        // 获取第一帧
+        function img(video) {
+            let canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            document.body.appendChild(canvas)
+            // document.getElementById("img").src = canvas.toDataURL("image/png");
+            let imgFile1 = base64toFile1(canvas.toDataURL("image/png"));
+            let imgFile2 = base64toFile2(canvas.toDataURL("image/png"),'haha');
+            console.log(imgFile1,imgFile2)
+        }
+
+        // base64转文件流
+        function base64toFile1(dataurl, filename = new Date().getTime()) {
+
+            let arr = dataurl.split(',');
+
+            let mime = arr[0].match(/:(.*?);/)[1];
+
+            let suffix = mime.split('/')[1];
+
+            let bstr = atob(arr[1]);
+
+            let n = bstr.length;
+
+            let u8arr = new Uint8Array(n);
+
+            while (n--) {
+
+                u8arr[n] = bstr.charCodeAt(n);
+
+            }
+
+            return new File([u8arr], `${filename}.${suffix}`, {
+
+                type: mime
+
+            })
+
+        }
+
+
+
+        function base64toFile2(base64Data, filename = new Date().getTime()) {
+            //将base64转换为blob
+            function dataURLtoBlob(dataurl) {
+                var arr = dataurl.split(','),
+                    mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]),
+                    n = bstr.length,
+                    u8arr = new Uint8Array(n);
+
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+
+                return new Blob([u8arr], { type: mime });
+            };
+
+            //将blob转换为file
+            function blobToFile(theBlob, fileName = new Date().getTime()) {
+                theBlob.lastModifiedDate = new Date();
+                theBlob.name = fileName;
+                return theBlob;
+            };
+
+            //调用
+            return blobToFile(dataURLtoBlob(base64Data), filename)
+
+        }
+        
+        
+        
+        
+        video("./2.mp4", 0.1);
+    </script>
+</body>
+
+</html>

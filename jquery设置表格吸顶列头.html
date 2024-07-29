@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script>
+        //吸顶列头 需要在表格初始化后执行，否则无法获取列头
+        function isceilingSuction(option = {}) {
+            /**
+             * option参数解释
+             * 	name:需要被克隆的列头的jquery选择条件
+             * 	table:表格的选择条件
+             * */
+
+
+            //默认的表格选择
+            let obj = {
+                name: ".table>thead",
+                table: ".table",
+            }
+            Object.assign(obj, option)
+
+            //给克隆出来的多选框设置点击全选事件
+            $(document).on("click", "#clone_thead input[type='checkbox'][data-toggle='checkAll']", function () {
+                //触发不吸顶的列头中的全选按钮的点击事件
+                $(obj.name + " input[type='checkbox'][data-toggle='checkAll']").click()
+            })
+
+            function ceiling_scroll() {
+
+                //表格列头（不是克隆的那个）
+                let $table_head = $(obj.name);
+                /**
+                 * 滚动条到达视野顶部后的距离
+                 *          表格列头距离视窗顶部的距离 - 滚动条距离顶部的距离 - header的高度
+                 *   上面的公式结果为0就是列头到达顶部的header的时刻
+                 * */
+                let hegihts = $table_head.offset().top - $(window).scrollTop()
+
+                //获取吸顶列头容器
+                let $cloneThead = $("#clone_thead");
+                if (hegihts > 0) {
+                    // console.log("不吸顶")
+                    //    列头不需要吸顶了
+                    if ($cloneThead.length < 1) return;
+                    $cloneThead.remove()
+                } else {
+                    //列头需要吸顶时
+                    // console.log("吸顶")
+                    //判断吸顶导航是否存在，不存在就克隆，存在就等于它自己
+                    let $clone_thead = $cloneThead.length > 0 ? $cloneThead.find("thead") : $table_head.clone(true)
+
+                    //给吸顶导航一个父容器 判断是否需要创建
+                    let divs = $cloneThead.length > 0 ? $cloneThead : $(document.createElement("div"));
+
+                    //因为设置了定位bootstrap-table插件出现了列头对不齐的bug这里给表头重新设置为没有定位的那个列头的宽度用于对齐表格
+                    let $tab_head_th = $(obj.name + " tr th");
+                    for (let i = 0; i < $tab_head_th.length; i++) {
+                        let styles = {
+                            width: $tab_head_th[i].offsetWidth + "px",
+                            color: $tab_head_th.eq(i).css("color"),
+                            padding: $tab_head_th.eq(i).css("padding")
+                        }
+                        $clone_thead.find("th").eq(i).css(styles)
+                    }
+
+                    //设置吸顶导航与它父容器的样式
+                    divs.append($clone_thead)
+                    divs.css({
+                        background: "white", position: "fixed", top:"0px", left: $table_head.offset
+                            ().left + "px", width: $table_head[0].offsetWidth + "px", zIndex: 1040, overflow: "hidden",
+                        height: $table_head[0].offsetHeight + "px", display: "flex", alignItems: "center", borderBottom: '1px solid #ccc'
+                    })
+                    $clone_thead.css({ width: $table_head[0].offsetWidth + "px" })
+
+                    //如果克隆的列头存在就不在执行，避免重复创建
+                    if ($cloneThead.length > 0) return
+                    //给父容器设置id
+                    divs.attr("id", "clone_thead")
+                    $table_head.after(divs)
+                }
+            }
+
+            //页面加载时就先执行一次
+            ceiling_scroll()
+
+            //浏览器滚动条事件
+            $(window).on('scroll', ceiling_scroll);
+
+            //屏幕变化监听事件
+            let resizeTimer;
+            $(window).on('resize', () => {
+                if (resizeTimer) {
+                    clearTimeout(resizeTimer);
+                }
+                resizeTimer = setTimeout(function () {
+                    ceiling_scroll()
+                }, 500)
+
+            });
+
+            //按钮触发收起/展开菜单栏后执行
+            $(document).on("click", ".main-sidebar-toggle", () => {
+                setTimeout(() => {
+                    ceiling_scroll()
+                }, 500)
+            })
+
+            //监听表格滚动条事件
+            $(document).on("scroll", obj.table, function () {
+                if ($("#clone_thead").length < 1) return
+                $("#clone_thead thead").animate({ left: -$(this).scrollLeft() + "px" }, 10)
+
+            })
+
+        }
+    
+        $(function () {
+            //页面加载完成后执行 开启吸顶导航
+            if($(".table>thead").length) isceilingSuction()
+        })
+    </script>
+</head>
+
+<body>
+    <table class="table" border="1">
+        <thead>
+          <tr>
+            <th>表格标题-列1</th>
+            <th>表格标题-列2</th>
+            <th>表格标题-列3</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+</body>
+<script>
+    // 数据渲染
+    let i = 0;
+    let html = (index) => `<tr>
+                <td>${index}行-表格单元格-列1</td>
+                <td>${index}行-表格单元格-列2</td>
+                <td>${index}行-表格单元格-列3</td>
+            </tr>`;
+    while (i < 100) {
+        i++;
+        $("tbody").append(html(i))
+    }
+</script>
+</html>

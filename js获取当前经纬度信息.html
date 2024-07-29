@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    地址获取中,请稍后...
+</body>
+<script>
+    // 获取当前位置信息
+    function getPosition() {
+        return new Promise((res, rej) => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(onSuccess, onError);
+            } else {
+                rej("您的浏览器不支持使用HTML 5来获取地理位置服务");
+            }
+            //定位数据获取成功响应
+            function onSuccess(position) {
+                // console.log('纬度: ' + position.coords.latitude + '\n' +
+                //     '经度: ' + position.coords.longitude + '\n' +
+                //     '海拔: ' + position.coords.altitude + '\n' +
+                //     '水平精度: ' + position.coords.accuracy + '\n' +
+                //     '垂直精度: ' + position.coords.altitudeAccura)
+                let obj = {
+                    latitude: {
+                        label: "纬度",
+                        value: position.coords.latitude || ""
+                    },
+                    longitude: {
+                        label: "经度",
+                        value: position.coords.longitude || ""
+                    },
+                    altitude: {
+                        label: "海拔",
+                        value: position.coords.altitude || ""
+                    },
+                    accuracy: {
+                        label: "水平精度",
+                        value: position.coords.accuracy || ""
+                    },
+                    altitudeAccura: {
+                        label: "垂直精度",
+                        value: position.coords.altitudeAccura || ""
+                    },
+                }
+                res({ row: position, data: obj })
+            }
+            
+            //定位数据获取失败响应
+            function onError(error) {
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        rej("您拒绝对获取地理位置的请求");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        rej("位置信息是不可用的");
+                        break;
+                    case error.TIMEOUT:
+                        rej("请求您的地理位置超时");
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        rej("未知错误");
+                        break;
+                }
+            }
+        })
+    }
+
+
+    (async () => {
+        try {
+            let res = await getPosition();
+            console.log(res);
+            document.body.innerHTML = JSON.stringify(res.data)
+        } catch (error) {
+            console.log(error);
+            document.body.innerHTML = error;
+        }
+    })()
+
+
+</script>
+
+</html>

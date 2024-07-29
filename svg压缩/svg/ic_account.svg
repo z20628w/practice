@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="13.23" height="15.955" viewBox="0 0 13.23 15.955">
+  <defs>
+    <style>
+      .a {
+        font-size: 9px;
+        font-family: MicrosoftYaHei-Bold, Microsoft YaHei;
+        font-weight: 700;
+      }
+
+      .b,
+      .c {
+        fill: none;
+        stroke: #333;
+        stroke-linejoin: round;
+      }
+
+      .c {
+        stroke-linecap: round;
+      }
+    </style>
+  </defs>
+  <g transform="translate(-17.068 -145.5)"><text class="a" transform="translate(21 158)">
+      <tspan x="0" y="0">¥</tspan>
+    </text>
+    <g transform="translate(9.568 139)">
+      <path class="b"
+        d="M17.574,7h1.892a.753.753,0,0,1,.764.742V19.977a.753.753,0,0,1-.764.742H8.764A.753.753,0,0,1,8,19.977V7.742A.753.753,0,0,1,8.764,7h2.642V8.112h5.426V7Z"
+        transform="translate(0 1.236)" />
+      <rect class="c" width="5.4" height="2.472" transform="translate(11.415 7)" />
+    </g>
+  </g>
+</svg>

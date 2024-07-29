@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <body>
+        <img src="" alt="" id="avatar">
+    </body>
+    <script>
+        async function drawAndShareImage (w = 300, h = 300, arr = [], index = 0, canvas, context, setImg) {
+
+            /**
+             * w:画布的宽
+             * h:画布的高
+             * arr:图片列表，越靠前层级越低
+             *      例:
+        *              let arr = [{
+                            url:"./shareImg.png", //图片地址
+                            width:750, //图片宽度
+                            height:1345, // 图片高度
+                            x:0, //图片的位置(左上角)
+                            y:0, //图片的位置(左上角)
+                            imgType:"image/png"//导出图片的格式，不传默认image/png
+                            type:'image',//当前融合类型 image--图片
+                        },
+                        {
+                            type:'text',//当前融合类型  text--文字
+                            imgType:"image/png"//导出图片的格式，不传默认image/png
+                            // 绘制文字的样式
+                            style:[
+                                {
+                                    type:'key',//样式执行类型 key--对象直接赋值  fn:执行方法
+                                    label:null,//赋值对象的key，或者是方法名称
+                                    value:null,//值或者传递参数
+                                }
+                            ],
+                        }
+                    ];
+
+             * index:正在合成第几张图片
+             * canvas:画布dom
+             * context:画布内容
+             * setImg:图片融合方法
+             * */
+
+
+            if (index === 0) {
+                // 第一次进入时创建画布，后面递归进入的就不在创建
+                canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                context = canvas.getContext("2d");
+                setImg = (obj) => {
+                    return new Promise((res, rej) => {
+                        if (obj.type == 'text') {
+                            // 文字融合
+                            if (Array.isArray(obj.style)) {
+                                obj.style.forEach(item => {
+                                    if (item.type == 'fn') {
+                                        if (item.label && item.value && Array.isArray(item.value)) {
+                                            context[item.label](...item.value);
+                                        } else {
+                                            context[item.label]();
+                                        }
+                                    } else if (item.type == 'key') {
+                                        if (item.label && item.value) {
+                                            context[item.label] = item.value;
+                                        }
+                                    }
+                                })
+                            }
+
+                            // 导出canvas为图片
+                            var base64 = canvas.toDataURL(obj.imgType || "image/png");  //"image/png" 这里注意一下
+                            res(base64);
+
+                        } else if (obj.type == 'image') {
+                            // 图片融合
+                            var myImage = new Image();
+                            myImage.src = obj.url;    //背景图片  你自己本地的图片或者在线图片
+                            myImage.crossOrigin = 'Anonymous';
+                            // 监听图片加载事件
+                            myImage.onload = function () {
+                                context.drawImage(myImage, obj.x, obj.y, obj.width, obj.height);
+
+                                // 导出canvas为图片
+                                var base64 = canvas.toDataURL(obj.imgType || "image/png");  //"image/png" 这里注意一下
+                                res(base64);
+                            }
+                        }
+                    })
+                }
+            }
+
+            // 没图片就返回
+            if (!arr.length) return [];
+
+            let imgArr = [];
+
+            let res = await setImg(arr[index]);
+
+            imgArr.push(res);
+
+            index++;
+
+            //判断是否为最后一条数据，不是最后一条数据就进行递归
+            if (index < arr.length) imgArr = [...imgArr, ...await drawAndShareImage(w, h, arr, index, canvas, context, setImg)];
+
+            return imgArr;
+
+
+            /**
+             * 使用示例
+            */
+
+            // let arr = [
+            //     {
+            //         type: "image",
+            //         url: "./shareImg.png", //图片地址
+            //         width: 750, //图片宽度
+            //         height: 1345, // 图片高度
+            //         x: 0, //图片的位置(左上角)
+            //         y: 0 //图片的位置(左上角)
+            //     }, {
+            //         type: "image",
+            //         url: "./gz.png", //图片地址
+            //         width: 180, //图片宽度
+            //         height: 180, // 图片高度
+            //         x: 285, //图片的位置(左上角)
+            //         y: 1125, //图片的位置(左上角)
+            //     },
+            //     {
+            //         type: "text",
+            //         style: [
+            //             {
+            //                 type: 'fn',
+            //                 label: "beginPath",
+            //             },
+            //             {
+            //                 type: 'key',
+            //                 label: "strokeStyle",
+            //                 value: "red"
+            //             },
+            //             {
+            //                 type: 'key',
+            //                 label: "font",
+            //                 value: "28px serif"
+            //             },
+            //             {
+            //                 type: 'fn',
+            //                 label: "strokeText",
+            //                 value: ['哈哈lalala', 20, 30]
+            //             },
+            //             {
+            //                 type: 'fn',
+            //                 label: "closePath",
+            //             },
+            //         ]
+            //     }
+            // ];
+
+            // drawAndShareImage(750, 1345, arr).then(res => {
+            //     console.log(res);
+            //     document.getElementById("avatar").src = res[res.length - 1];
+            // })
+
+        }
+
+        let arr = [
+            {
+                type: "image",
+                url: "./shareImg.png", //图片地址
+                width: 750, //图片宽度
+                height: 1345, // 图片高度
+                x: 0, //图片的位置(左上角)
+                y: 0 //图片的位置(左上角)
+            }, {
+                type: "image",
+                url: "./gz.png", //图片地址
+                width: 180, //图片宽度
+                height: 180, // 图片高度
+                x: 285, //图片的位置(左上角)
+                y: 1125, //图片的位置(左上角)
+            },
+            {
+                type: "text",
+                style: [
+                    {
+                        type: 'fn',
+                        label: "beginPath",
+                    },
+                    {
+                        type: 'key',
+                        label: "strokeStyle",
+                        value: "red"
+                    },
+                    {
+                        type: 'key',
+                        label: "font",
+                        value: "28px serif"
+                    },
+                    {
+                        type: 'fn',
+                        label: "strokeText",
+                        value: ['哈哈lalala', 20, 30]
+                    },
+                    {
+                        type: 'fn',
+                        label: "closePath",
+                    },
+                ]
+            }
+        ];
+
+        drawAndShareImage(750, 1345, arr).then(res => {
+            console.log(res);
+            document.getElementById("avatar").src = res[res.length - 1];
+        })
+
+    </script>
+</body>
+
+</html>

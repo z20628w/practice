@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用交叉观察器(IntersectionObserver)监听元素是否到显示区域</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      outline: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    ul {
+      width: 200px;
+      height: 500px;
+      overflow: auto;
+      margin: 0 auto;
+      background: green;
+      counter-reset: num 0;
+    }
+
+    ul>li {
+      display: block;
+      width: 100px;
+      height: 100px;
+      background: red;
+      counter-increment: num 1;
+      text-align: center;
+      line-height: 100px;
+      margin: 0 auto;
+      margin-bottom: 40px;
+    }
+
+    ul>li::before {
+      content: "第" counter(num)"个元素";
+    }
+  </style>
+</head>
+
+<body>
+  <ul>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+
+  <script>
+    let ul = document.querySelector("ul");
+    let doms = document.querySelectorAll("li");
+    let option = {
+      // 决定了什么时候触发回调函数。它是一个数组，每个成员都是一个门槛值，默认为[0]，即交叉比例（intersectionRatio）达到0时触发回调函数。用户可以自定义这个数组。比如，[0, 0.25, 0.5, 0.75, 1]就表示当目标元素 0%、25%、50%、75%、100% 可见时，会触发回调函数。
+      threshold: [1],
+      // 用于观察的根元素，默认是浏览器的视口，也可以指定具体元素，指定元素的时候用于观察的元素必须是指定元素的子元素
+      root: ul,
+      //  用来扩大或者缩小视窗的的大小，使用css的定义方法，10px 10px 30px 20px表示top、right、bottom 和 left的值
+      rootMargin: "",
+    }
+
+    let observer = new IntersectionObserver((changes, observer) => {
+      /**
+      changes = [{
+        // 目标元素的矩形区域的信息
+        boundingClientRect: unll,
+        // 目标元素的可见比例，即intersectionRect占boundingClientRect的比例，完全可见时为1，完全不可见时小于等于0
+        intersectionRatio: unll,
+        // 目标元素与视口（或根元素）的交叉区域的信息
+        intersectionRect: unll,
+        //  布尔值，目标元素与交集观察者的根节点是否相交（常用）
+        isIntersecting: unll,
+        // 布尔值，目标元素是否可见（该属性还在试验阶段，不建议在生产环境中使用）
+        isVisible: unll,
+        // 根元素的矩形区域的信息，getBoundingClientRect ()方法的返回值，如果没有根元素（即直接相对于视口滚动），则返回null
+        rootBounds: unll,
+        // 被观察的目标元素，是一个 DOM 节点对象（常用）
+        target: unll,
+        // 可见性发生变化的时间，是一个高精度时间戳，单位为毫秒
+        time: unll,
+      }]
+      */
+
+      let list = Array.from(changes);
+
+      list.forEach(item => {
+        // 判断是否到达指定交叉比例，就是threshold设置的比例
+        if (item.isIntersecting) {
+          item.target.style.background = "blue";
+        } else {
+          item.target.style.background = "red";
+        }
+      })
+
+    }, option);
+
+    // 开始观察
+    // observer.observe($item);
+    // 停止观察
+    // observer.unobserve($item);
+    // 关闭观察器
+    // observer.disconnect();
+    // 返回所有的观察目标
+    // observer.takeRecords();
+
+    // 监听所有的元素
+    Array.from(doms).forEach(item => {
+      observer.observe(item);
+    })
+
+  </script>
+</body>
+
+</html>

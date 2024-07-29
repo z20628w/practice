@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>js使用FileReader.readAsArrayBuffer()方法处理大型文件上传</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .drag-area-container {
+      width: 500px;
+      height: 500px;
+      border: 1px solid #0f0;
+      margin: 0 auto;
+    }
+
+    .highlight {
+      border: 10px solid #0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="drag-area-container">
+    拖拽识别文件
+  </div>
+
+  <script>
+    (function () {
+      // 禁止浏览器的拖拽默认事件
+      var globalDragFile = function () {
+        let globalDragArea = document.querySelector('body')
+
+        globalDragArea.addEventListener('dragover', function (e) {
+          e.preventDefault()
+        })
+
+        globalDragArea.addEventListener('drop', function (e) {
+          e.preventDefault()
+        })
+      }
+
+      // 识别指定区域的拖动效果
+      var localDragFile = function () {
+        let localDragArea = document.querySelector('.drag-area-container')
+
+        localDragArea.addEventListener('dragenter', function (e) {
+          // 拖动文件到指定区域时，添加高亮
+          localDragArea.classList.add('highlight')
+          e.preventDefault()
+        })
+
+        localDragArea.addEventListener('dragover', function (e) {
+          e.preventDefault()
+        })
+
+        localDragArea.addEventListener('drop', function (e) {
+          e.preventDefault()
+
+          // 去除高亮
+          localDragArea.classList.remove('highlight')
+
+          var file = e.dataTransfer.files[0]
+          console.log("file = ", file);
+          uploadFile(file)
+        })
+      }
+
+      // 处理文件 && 上传文件
+      var uploadFile = function (file) {
+        // 使用 FileReader 读取文件的数据
+        var reader = new FileReader()
+
+        reader.onloadend = function () {
+          var file_result = this.result               // ArrayBuffer 数据对象
+          var file_length = file_result.byteLength
+
+          // 小于 20 MB 为小文件，则整个读取并上传
+          // 大于 20 MB 为大文件，则需要将它切成小块，分别上传
+          var step = 1024 * 1024 * 20
+
+          if (file_length < step) {
+            console.log("小文件，直接整个上传 ");
+            handleSmallFile(file_result)
+          } else {
+            console.log("大文件，切块分别上传 ");
+            var block_arr = splitBigFile(file_result, file_length, step)
+
+            handleBigFile(block_arr).then(function (results) {
+              console.log("大文件，切块上传成功 result = ", results)
+            })
+          }
+        }
+
+        reader.readAsArrayBuffer(file)
+        /*
+            readAsArrayBuffer()        // 读取完成，result  属性中保存的将是被读取文件的 ArrayBuffer 数据对象。
+            readAsBinaryString()       // 读取完成，result  属性中将包含所读取文件的原始二进制数据。
+            readAsDataURL()            // 读取完成，result 属性中将包含一个 data: URL 格式的 Base64 字符串以表示所读取文件的内容。
+            readAsText()               // 读取完成，result 属性中将包含一个字符串以表示所读取的文件内容。
+        */
+      }
+
+      var handleSmallFile = function (file_result) {
+        // 先读取到 ArrayBuffer，再获取 ArrayBuffer 的 Uint8Array 字节数组形式，最后用 base64 编码字节数组用于传输。
+        var unit8_data = new Uint8Array(file_result)            // 提取二进制字节数组，使用 Uint8Array 表示
+        var base64_data = binary2base64(unit8_data)             // base64 编码
+
+        console.log("==== handle upload start ====");
+        console.log("data = ", base64_data);
+        console.log("==== handle upload end ====");
+      }
+
+      // 根据指定的 step 大小，切出来指定的 step 大小的块
+      var splitBigFile = function (file, file_length, step) {
+        var step_times = Math.ceil(file_length / step)
+        var start = 0
+        var block_arr = []
+
+        for (i = 0; i < step_times; i++) {
+          var block = file.slice(start, start + step)
+          start = start + step
+          block_arr.push(block)
+        }
+
+        return block_arr
+      }
+
+      var handleBigFile = async function (big_files) {
+        return Promise.all([].map.call(big_files, function (file, index) {
+          return new Promise(function (resolve, reject) {
+            // 先读取到 ArrayBuffer，再获取 ArrayBuffer 的 Uint8Array 字节数组形式，最后用 base64 编码字节数组用于传输。
+            var view = new Uint8Array(file)             // 提取二进制字节数组，使用 Uint8Array 表示
+            var base64_data = binary2base64(view)       // base64 编码
+
+            console.log("==== handle upload start ====");
+            console.log("block index = ", index);
+            console.log("data = ", base64_data);
+            console.log("==== handle upload end ====");
+            resolve("Promise file")
+          })
+        })).then(function (results) {
+          return results;
+        })
+      }
+
+      // 二进制字节数组转 base64 编码的字符串
+      var binary2base64 = function (bi) {
+        let str = '';
+        for (let i = 0, len = bi.length; i < len; i++) {
+          str += String.fromCharCode(bi[i]);
+        }
+        return btoa(str);
+      }
+
+      var __main = function () {
+        // 禁止浏览器的拖拽默认事件
+        globalDragFile()
+
+        // 识别指定区域的拖动效果
+        localDragFile()
+      }
+
+      __main()
+    })()
+  </script>
+</body>
+
+</html>

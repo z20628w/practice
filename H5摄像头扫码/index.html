@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Instascan</title>
+    <meta charset="UTF-8">
+    <script src="jquery.min.js"></script>
+    <script src="./html5-qrcode.min.js"></script>
+    <style>
+        button {
+            font-size: 40px;
+            margin-left: 20px;
+            margin-top: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width: 100%;height:100%" id="reader"></div>
+    <canvas id="canva" style="display:none"></canvas>
+    <button onclick="startCameraAndScan()" type="button">开始摄像并扫描</button>
+    <button onclick="pauseCamera()" type="button">暂停摄像</button>
+    <button onclick="startCamera()" type="button">继续摄像</button>
+    <button onclick="stopCamera()" type="button">关闭摄像头</button>
+    <br>
+    <button onclick="pauseScan()" type="button">暂停扫描</button>
+    <button onclick="resumeScan()" type="button">继续扫描</button>
+
+    <button onclick="takePhoto()" type="button">拍照</button>
+    <button onclick="window.location.reload()" type="button">刷新</button>
+</body>
+<script>
+    var html5QrcodeScanner = new Html5Qrcode("reader");
+    function startCameraAndScan () {
+        $("#canva").css("display", "none");
+        html5QrcodeScanner.start(
+            { facingMode: "environment" }//environment:后摄像头；user:前摄像头
+            , { fps: 10, qrbox: { width: 600, height: 600 } }, onScanSuccess);
+    }
+    function onScanSuccess (decodedText, decodedResult) {
+        pauseScan();//停止解析
+        pauseCamera();//暂停摄像
+        alert(decodedText);//
+        console.log(`Scan result: ${decodedText}`, decodedResult);
+    }
+    //暂停扫描解析二维码
+    function pauseScan () {
+        html5QrcodeScanner.pause();
+    }
+    //继续扫描解析二维码
+    function resumeScan () {
+        html5QrcodeScanner.resume();
+    }
+    //关闭摄像头
+    function stopCamera () {
+        html5QrcodeScanner.stop();
+    }
+    //暂停摄像
+    function pauseCamera () {
+        document.querySelector("video").pause();//停止扫描
+    }
+    //继续摄像
+    function startCamera () {
+        document.querySelector("video").play();
+    }
+    //拍照
+    function takePhoto () {
+        var video = document.querySelector("video");
+        var reader = $("#reader");
+        var canva = document.getElementById("canva");
+        canva.setAttribute("width", reader.css("width"));
+        canva.setAttribute("height", reader.css("height"));
+        canva.getContext("2d").drawImage(video, 0, 0, $(video).width(), $(video).height());
+        stopCamera();//停止摄像
+        $(canva).css("display", "");
+        // var data = canva.toDataURL();//图形转成base64
+    }
+
+</script>
+
+</html>

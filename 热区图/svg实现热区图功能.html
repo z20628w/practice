@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <svg viewBox="0 0 1920 1080">
+    <image xlink:href="https://shalashike.oss-cn-shenzhen.aliyuncs.com/APK广告/2023/06/28/5688ba839b7146a4b20eaac39726a4d51.jpg" x="0" y="0" width="1920" height="1080" />
+
+    <!-- 多边形 -->
+    <polygon points="940,122,862,185,847,227,820,246,793,259,764,315,813,336,854,332,889,363,928,370,972,359,916,342,905,319,939,295,984,317,1030,327,1047,326,1022,271,1027,193,986,214,947,254,928,254,905,251,922,222,925,197,920,164" fill="transparent" stroke="red">
+      <title>鲲</title>
+    </polygon>
+
+    <!-- 矩形 -->
+    <rect x="1586" y="181" width="164" height="168" fill="transparent" stroke="red" stroke-width="2" id="hotspot1">
+      <title>矩形</title>
+    </rect>
+
+    <!-- 圆形 -->
+    <circle cx="367" cy="224" r="204" fill="transparent" stroke="red" stroke-width="2">
+      <title>圆形</title>
+    </circle>
+
+    <!-- 椭圆 -->
+    <ellipse cx="100" cy="100" rx="50" ry="30" fill="transparent" stroke="yellow" stroke-width="2">
+      <title>椭圆</title>
+    </ellipse>
+
+    <!-- 添加 onclick 事件 -->
+    <script>
+      document.getElementById('hotspot1').addEventListener('click', function () {
+        alert('You clicked on the hot spot!');
+      });
+    </script>
+  </svg>
+</body>
+
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  :root {
+    --width: 1.7vh;
+    --red-1: #f40001;
+    --red-2: #d40000;
+    --red-3: #8c0703;
+    --rope:
+      var(--red-3),
+      var(--red-2) calc(var(--width) * 0.25),
+      var(--red-1) calc(var(--width) * 0.45),
+      var(--red-1) calc(var(--width) * 0.55),
+      var(--red-2) calc(var(--width) * 0.75),
+      var(--red-3) var(--width);
+    --grid-width: calc(var(--width) * 16);
+    --bg-line: linear-gradient(90deg, var(--rope), transparent var(--width)) 0 0 / calc(var(--width) * 1.5) calc(var(--width) * 1.5);
+    --conic: #000 0 90deg, transparent 0 100%;
+    --yellow-1: #fced00;
+    --yellow-2: #f28a00;
+    --yellow-3: #da571b;
+    --bg-yellow: linear-gradient(90deg,
+        var(--yellow-3),
+        var(--yellow-2) 20%,
+        var(--yellow-1) 40%,
+        var(--yellow-1) 60%,
+        var(--yellow-2) 80%,
+        var(--yellow-3) 100%);
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #1d1e22;
+    overflow: hidden;
+  }
+
+  .grid {
+    width: var(--grid-width);
+    height: var(--grid-width);
+    background: var(--bg-line);
+  }
+
+  .grid:after {
+    content: "";
+    display: block;
+    width: var(--grid-width);
+    height: var(--grid-width);
+    background: var(--bg-line);
+    transform: rotate(90deg);
+    -webkit-mask: conic-gradient(from 0deg at var(--width) calc(var(--width) * 1.5), var(--conic)) 0 0 / calc(var(--width) * 3) calc(var(--width) * 3),
+      conic-gradient(from 90deg at calc(var(--width) * 2.5) 0, var(--conic)) 0 0 / calc(var(--width) * 3) calc(var(--width) * 3),
+      conic-gradient(from 180deg at calc(var(--width) * 1.5) var(--width), var(--conic)) 0 0 / calc(var(--width) * 3) calc(var(--width) * 3),
+      conic-gradient(from 90deg at 0 calc(var(--width) * 2.5), var(--conic)) 0 0 / calc(var(--width) * 3) calc(var(--width) * 3);
+  }
+
+  /* 先给最外层加个相对定位，后面的绝对定位都相对这一层 */
+  .chinese-knot {
+    width: var(--grid-width);
+    height: var(--grid-width);
+    position: relative;
+    transform: rotate(-45deg) translate(calc(var(--width) * 4), calc(var(--width) * -4));
+  }
+
+  .ring-small {}
+
+  .ring-small>i {
+    position: absolute;
+    width: calc(var(--width) * 2.5);
+    height: calc(var(--width) * 1.5);
+    background: radial-gradient(circle at 50% 100%,
+        transparent calc(var(--width) * 0.25),
+        var(--red-3) calc(var(--width) * 0.25),
+        var(--red-2) calc(var(--width) * (0.25 + 0.25)),
+        var(--red-1) calc(var(--width) * (0.25 + 0.45)),
+        var(--red-1) calc(var(--width) * (0.25 + 0.55)),
+        var(--red-2) calc(var(--width) * (0.25 + 0.75)),
+        var(--red-3) calc(var(--width) * (0.25 + 1)),
+        transparent calc(var(--width) * (0.25 + 1)));
+
+  }
+
+  .ring-small>i:before,
+  .ring-small>i:after {
+    content: "";
+    position: absolute;
+    bottom: calc(var(--width) * -0.5 + 1px);
+    width: var(--width);
+    height: calc(var(--width) * 0.5);
+    background: var(--bg-line);
+  }
+
+  .ring-small>i:after {
+    right: 0;
+  }
+
+  .ring-small>i:nth-child(-n + 4) {
+    top: calc(var(--width) * -2 + 2px);
+  }
+
+  .ring-small>i:nth-child(1) {
+    left: calc(var(--width) * 3);
+  }
+
+  .ring-small>i:nth-child(2) {
+    left: calc(var(--width) * 6);
+  }
+
+  .ring-small>i:nth-child(3) {
+    left: calc(var(--width) * 9);
+  }
+
+  .ring-small>i:nth-child(4) {
+    left: calc(var(--width) * 12);
+  }
+
+  .ring-small>i:nth-child(-n + 8):nth-child(n + 5) {
+    bottom: calc(var(--width) * -2 + 2px);
+    transform: rotate(180deg);
+  }
+
+  .ring-small>i:nth-child(5) {
+    left: calc(var(--width) * 1.5);
+  }
+
+  .ring-small>i:nth-child(6) {
+    left: calc(var(--width) * 4.5);
+  }
+
+  .ring-small>i:nth-child(7) {
+    left: calc(var(--width) * 7.5);
+  }
+
+  .ring-small>i:nth-child(8) {
+    left: calc(var(--width) * 10.5);
+  }
+
+  .ring-small>i:nth-child(-n + 12):nth-child(n + 9) {
+    left: calc(var(--width) * -2.5 + 2px);
+    transform: rotate(-90deg);
+  }
+
+  .ring-small>i:nth-child(9) {
+    top: calc(var(--width) * 3.5);
+  }
+
+  .ring-small>i:nth-child(10) {
+    top: calc(var(--width) * 6.5);
+  }
+
+  .ring-small>i:nth-child(11) {
+    top: calc(var(--width) * 9.5);
+  }
+
+  .ring-small>i:nth-child(12) {
+    top: calc(var(--width) * 12.5);
+  }
+
+  .ring-small>i:nth-child(-n + 16):nth-child(n + 13) {
+    right: calc(var(--width) * -2.5 + 2px);
+    transform: rotate(90deg);
+  }
+
+  .ring-small>i:nth-child(13) {
+    top: calc(var(--width) * 2);
+  }
+
+  .ring-small>i:nth-child(14) {
+    top: calc(var(--width) * 5);
+  }
+
+  .ring-small>i:nth-child(15) {
+    top: calc(var(--width) * 8);
+  }
+
+  .ring-small>i:nth-child(16) {
+    top: calc(var(--width) * 11);
+  }
+
+  .ring-big {}
+
+  .ring-big>i {
+    position: absolute;
+    width: calc(var(--width) * 6);
+    height: calc(var(--width) * 6);
+
+  }
+
+  .ring-big>i:nth-child(1) {
+    left: calc(var(--width) * -3.5);
+    top: calc(var(--width) * -3.5);
+  }
+
+  .ring-big>i:nth-child(2) {
+    left: auto;
+    top: auto;
+    right: calc(var(--width) * -3.5);
+    bottom: calc(var(--width) * -3.5);
+    transform: rotate(180deg);
+  }
+
+  .ring-big>i:before,
+  .ring-big>i:after {
+    content: "";
+    position: absolute;
+    top: calc(var(--width) * 3 - 1px);
+    left: calc(var(--width) * 3.5);
+    width: calc(var(--width) * 2.5);
+    height: calc(var(--width) * 0.5 + 2px);
+    background: repeating-linear-gradient(90deg,
+        var(--red-3),
+        var(--red-2) calc(var(--width) * 0.25),
+        var(--red-1) calc(var(--width) * 0.45),
+        var(--red-1) calc(var(--width) * 0.55),
+        var(--red-2) calc(var(--width) * 0.75),
+        var(--red-3) var(--width),
+        transparent var(--width),
+        transparent calc(var(--width) * 1.5));
+  }
+
+  .ring-big>i:after {
+    transform: rotate(90deg);
+    transform-origin: left top;
+    top: calc(var(--width) * 3.5);
+    left: calc(var(--width) * 3.5 + 1px);
+  }
+
+  .ring-big>i>b {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 50%, 50% 100%, 0 100%);
+    background: radial-gradient(circle at 50% 50%,
+        transparent calc(var(--width) * 0.5),
+        var(--red-3) calc(var(--width) * 0.5),
+        var(--red-2) calc(var(--width) * (0.5 + 0.25)),
+        var(--red-1) calc(var(--width) * (0.5 + 0.45)),
+        var(--red-1) calc(var(--width) * (0.5 + 0.55)),
+        var(--red-2) calc(var(--width) * (0.5 + 0.75)),
+        var(--red-3) calc(var(--width) * (0.5 + 1)),
+        transparent calc(var(--width) * (0.5 + 1)),
+        transparent calc(var(--width) * 2),
+        var(--red-3) calc(var(--width) * 2),
+        var(--red-2) calc(var(--width) * (2 + 0.25)),
+        var(--red-1) calc(var(--width) * (2 + 0.45)),
+        var(--red-1) calc(var(--width) * (2 + 0.55)),
+        var(--red-2) calc(var(--width) * (2 + 0.75)),
+        var(--red-3) calc(var(--width) * (2 + 1)),
+        transparent calc(var(--width) * (2 + 1)));
+  }
+
+
+  .cross-node {}
+
+  .cross-node>.node {
+    position: absolute;
+    z-index: 2;
+    width: var(--width);
+    height: var(--width);
+    background: var(--bg-line);
+
+  }
+
+  .cross-node>.node>i {
+    position: absolute;
+    width: var(--width);
+    height: var(--width);
+    background: var(--bg-line);
+    transform: rotate(90deg);
+
+  }
+
+  .cross-node>.node>i:nth-child(1) {
+    left: calc(var(--width) * -1);
+  }
+
+  .cross-node>.node>i:nth-child(2) {
+    left: var(--width);
+  }
+
+  .cross-node>.node>i:nth-child(3) {
+    top: calc(var(--width) * -1);
+  }
+
+  .cross-node>.node>i:nth-child(4) {
+    top: var(--width);
+  }
+
+  .cross-node>.node:nth-child(1) {
+    right: calc(var(--width) * -1);
+    top: calc(var(--width) * -1);
+  }
+
+  .cross-node>.node:nth-child(2) {
+    left: calc(var(--width) * -1);
+    bottom: calc(var(--width) * -1);
+  }
+
+  .header {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: rotate(45deg);
+
+  }
+
+  .header>i {
+    position: absolute;
+    bottom: calc(var(--width) * 1);
+    left: calc(var(--width) * -0.5);
+    width: calc(var(--width) * 1);
+    height: calc(var(--width) * 2);
+    background: var(--bg-line);
+
+  }
+
+  .header>i:before {
+    content: "";
+    display: block;
+    height: calc(var(--width) * 0.5);
+    background: var(--bg-yellow);
+  }
+
+  .header>b {
+    position: absolute;
+    bottom: calc(var(--width) * 3);
+    left: calc(var(--width) * -1.5);
+    width: calc(var(--width) * 3);
+    height: calc(var(--width) * 3);
+    background: radial-gradient(circle at 50%,
+        transparent calc(var(--width) * 0.75),
+        var(--red-3) calc(var(--width) * 0.75),
+        var(--red-2) calc(var(--width) * (0.75 + 0.15)),
+        var(--red-1) calc(var(--width) * (0.75 + 0.3)),
+        var(--red-1) calc(var(--width) * (0.75 + 0.45)),
+        var(--red-2) calc(var(--width) * (0.75 + 0.6)),
+        var(--red-3) calc(var(--width) * (0.75 + 0.75)),
+        transparent calc(var(--width) * (0.75 + 0.75)));
+  }
+
+  .header>span {
+    position: absolute;
+    bottom: calc(var(--width) * 5);
+    left: calc(var(--width) * -0.25);
+    width: calc(var(--width) * 0.5);
+    height: calc(var(--width) * 30);
+    background: linear-gradient(90deg, var(--red-2), var(--red-1) 20%, var(--red-2) 70%, var(--red-3));
+    border-radius: calc(var(--width) * 0.25);
+  }
+
+  .footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+  }
+
+  .footer>b {
+    position: absolute;
+    width: calc(var(--width) * 15);
+    height: calc(var(--width) * 15);
+    background: radial-gradient(circle at 50%,
+        transparent calc(var(--width) * 6.5),
+        var(--red-3) calc(var(--width) * 6.5),
+        var(--red-2) calc(var(--width) * (6.5 + 0.25)),
+        var(--red-1) calc(var(--width) * (6.5 + 0.45)),
+        var(--red-1) calc(var(--width) * (6.5 + 0.55)),
+        var(--red-2) calc(var(--width) * (6.5 + 0.75)),
+        var(--red-3) calc(var(--width) * (6.5 + 1)),
+        transparent calc(var(--width) * (6.5 + 1)))
+  }
+
+  .footer>b:nth-child(1) {
+    left: calc(var(--width) * -8.5);
+    top: calc(var(--width) * 1);
+    clip-path: polygon(50% 0, 50% 50%, 10% 0);
+  }
+
+  .footer>b:nth-child(2) {
+    left: calc(var(--width) * -16);
+    top: calc(var(--width) * -6.5);
+    clip-path: polygon(100% 50%, 50% 50%, 100% 90%);
+  }
+
+  .footer>.tassels {
+    transform: rotate(45deg);
+  }
+
+  .footer>.tassels>i {
+    position: absolute;
+    width: calc(var(--width) * 2.5);
+    height: calc(var(--width) * 14);
+    background: var(--red-2) repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.2) 1px, transparent 1px, transparent 3px) 50% 50% / 3px 1px;
+  }
+
+  .footer>.tassels>i:nth-child(1) {
+    left: calc(var(--width) * 0.5);
+    top: calc(var(--width) * 5);
+  }
+
+  .footer>.tassels>i:nth-child(2) {
+    left: calc(var(--width) * -2.7);
+    top: calc(var(--width) * 5);
+  }
+
+  .footer>.tassels>i:before {
+    content: "";
+    position: absolute;
+    top: calc(var(--width) * 0.5);
+    width: 100%;
+    height: calc(var(--width) * 3.6);
+    background: var(--bg-yellow);
+    clip-path: polygon(0 0, 100% 0, 100% 10%, 0 10%, 0 15%, 100% 15%, 100% 85%, 0 85%, 0 90%, 100% 90%, 100% 100%, 0 100%, 0 0);
+  }
+</style>
+
+<body>
+  <div class="chinese-knot">
+    <div class="grid"></div>
+    <div class="ring-small">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+    <div class="ring-big">
+      <i><b></b></i>
+      <i><b></b></i>
+    </div>
+    <div class="cross-node">
+      <div class="node">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+      <div class="node">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+    </div>
+    <div class="header">
+      <i></i>
+      <b></b>
+      <span></span>
+    </div>
+    <div class="footer">
+      <b></b>
+      <b></b>
+      <div class="tassels">
+        <i></i>
+        <i></i>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

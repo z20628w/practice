@@ -1,0 +1,36 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <title>jQuery拼图滑块验证</title>
+    <link type="text/css" rel="stylesheet" href="./css/img_ver.css">
+    <script src="./js/jquery-3.6.0.js"></script>
+    <script src="./js/img_ver.js"></script>
+
+</head>
+
+<body>
+    <div id="imgVer" style="display:inline-block;"></div>
+    <script>
+        imgVer({
+            el: '$("#imgVer")',
+            width: '260',
+            height: '116',
+            img: [
+                'https://www.jq22.com/demo/jquerymy-store201811152308/images/ver-1.png',
+                'https://www.jq22.com/demo/jquerymy-store201811152308/images/ver-2.png',
+                'https://www.jq22.com/demo/jquerymy-store201811152308/images/ver-3.png'
+            ],
+            success: function () {
+                console.log("验证成功")
+            },
+            error: function () {
+                console.log('错误执行')
+            }
+        });
+   </script>
+</body>
+
+</html>

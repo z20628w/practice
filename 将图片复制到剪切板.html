@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>复制</title>
+</head>
+<style>
+
+</style>
+
+<body>
+
+  <img id="img" width="200" height="200" src="./img/lALPBG1Q8NaupMzM080BXw_351_211.png_720x720q90g.jpg" alt="">
+
+  <div class="copy" onclick="copyHandle()">点我复制图片</div>
+
+  <script>
+    // 复制图片，支持jpg，png
+    function copyHandle () {
+      let oImg = document.getElementById('img')
+      let url = oImg.src;
+
+      var canvas = document.createElement('canvas') // 创建一个画板
+      let image = new Image()
+      image.setAttribute("crossOrigin", 'Anonymous') //可能会有跨越问题
+      image.src = url
+      image.onload = () => {  // img加载完成事件
+        canvas.width = image.width  //设置画板宽度
+        canvas.height = image.height //设置画板高度
+        canvas.getContext('2d').drawImage(image, 0, 0); //加载img到画板
+        let url = canvas.toDataURL("image/png") // 转换图片为dataURL，格式为png
+        this.clipboardImg(url) // 调用复制方法
+      }
+    }
+
+    // 从url下载并复制图片，如果是png格式的图片直接调用此方法就能复制成功
+    async function clipboardImg (url) {
+      try {
+        const data = await fetch(url);
+        const blob = await data.blob();
+        await navigator.clipboard.write([
+          new window.ClipboardItem({
+            [blob.type]: blob
+          })
+        ]);
+        alert('复制成功')
+      } catch (err) {
+        alert('复制失败')
+      }
+    }
+
+  </script>
+</body>
+
+</html>

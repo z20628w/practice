@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .fc {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    font-weight: bold;
+  }
+
+  div.t {
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 255, 0, 1);
+    position: absolute;
+    top: 13%;
+    left: 8%;
+  }
+
+  img {
+    width: 430px;
+    height: 240px;
+    position: relative;
+    z-index: 2;
+    /* 透明的地方看不见赛车，不透明的地方看得见赛车 */
+    
+    /* 取值为图片 */
+    -webkit-mask-image: url("./img/购物车透明图标.png");
+
+    /* 取值是渐变色 */
+    /* -webkit-mask-image: linear-gradient(white 20%, transparent 20%, transparent 30%, white 30%, white 50%, transparent 50%, transparent 60%, white 60%, white 80%, transparent 80%, transparent 90%, white 90%); */
+
+
+    /* -webkit-mask-size: 100% 100%; */
+    -webkit-mask-position: 50% 50%;
+    -webkit-mask-repeat: no-repeat;
+  }
+</style>
+
+<body>
+  <!-- 添加形状蒙层 -->
+  <img src="./img/赛车.jpg" alt="">
+  <div class="t"></div>
+</body>
+
+</html>

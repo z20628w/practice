@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.9/vue.min.js"></script>
+</head>
+
+<body>
+  <div id="vueapp">
+    <div>
+      <button @click="btnRecordClicked" :disabled="recording">录制</button>
+      <button @click="btnPauseClicked" :disabled="paused||!recording">暂停</button>
+      <button @click="btnResumeClicked" :disabled="!paused||!recording">继续</button>
+      <button @click="btnStopClicked" :disabled="!recording">停止</button>
+      <button :disabled="!currentWebmData" @click="btnPlayClicked">播放</button>
+    </div>
+    <video controls ref="player"></video>
+  </div>
+  <script src="app.js"></script>
+</body>
+
+</html>

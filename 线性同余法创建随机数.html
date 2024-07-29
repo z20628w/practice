@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function rand () {
+            //线性同余生成器
+            var today = new Date();
+            var seed = today.getTime();
+            function rnd () {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / (233280.0);
+            };
+            return function rand (number) {
+                return Math.ceil(rnd(seed) * number);
+            };
+        };
+    </script>
+</body>
+
+</html>

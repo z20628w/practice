@@ -1,0 +1,725 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="gbk" />
+    <title>3D cube HTML5 canvas realization</title>
+</head>
+
+<body οnlοad="init();">
+
+    <canvas id="3Dcube" width="600" height="600"></canvas>
+    <script type="text/javascript">
+        function color(r, g, b, a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+        function point2D(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        point2D.prototype.move = function (p2D) {
+            this.x += p2D.x;
+            this.y += p2D.y;
+        }
+        function point3D(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        point3D.prototype.move = function (p3D) {
+            this.x += p3D.x;
+            this.y += p3D.y;
+            this.z += p3D.z;
+        }
+        point3D.prototype.swap = function (p3D) {
+            this.x = p3D.x;
+            this.y = p3D.y;
+            this.z = p3D.z;
+        }
+        point3D.prototype.rotate = function (axis, angleGr) {
+            angleRad = angleGr * Math.PI / 180;
+            switch (axis) {
+                case "x":
+                    {
+                        var tempPoint = new point3D(
+                            this.x,
+                            this.y * Math.cos(angleRad) - this.z * Math.sin(angleRad),
+                            this.y * Math.sin(angleRad) + this.z * Math.cos(angleRad)
+                        );
+                        this.swap(tempPoint);
+                        break;
+                    }
+                case "y":
+                    {
+                        var tempPoint = new point3D(
+                            this.x * Math.cos(angleRad) + this.z * Math.sin(angleRad),
+                            this.y,
+                            -this.x * Math.sin(angleRad) + this.z * Math.cos(angleRad)
+                        );
+                        this.swap(tempPoint);
+                        break;
+                    }
+                case "z":
+                    {
+                        var tempPoint = new point3D(
+                            this.x * Math.cos(angleRad) - this.y * Math.sin(angleRad),
+                            this.x * Math.sin(angleRad) + this.y * Math.cos(angleRad),
+                            this.z
+                        );
+                        this.swap(tempPoint);
+                        break;
+                    }
+            }
+        }
+        function normal3D(p3D, length) {
+            this.point = p3D;
+            this.length = length;
+        }
+        function poly() {
+            var points = [];
+            for (var i = 0; i < arguments.length; i++)
+                points.push(arguments[i]);
+            this.points = points;
+            // Calculating normal
+            var v1 = new point3D(points[2].x - points[1].x, points[2].y - points[1].y, points[2].z - points[1].z);
+            var v2 = new point3D(points[0].x - points[1].x, points[0].y - points[1].y, points[0].z - points[1].z);
+            var normalP3D = new point3D(v1.y * v2.z - v2.y * v1.z, v1.z * v2.x - v2.z * v1.x, v1.x * v2.y - v2.x * v1.y);
+            var normalLen = Math.sqrt(normalP3D.x * normalP3D.x + normalP3D.y * normalP3D.y + normalP3D.z * normalP3D.z);
+            this.normal = new normal3D(normalP3D, normalLen);
+        }
+        poly.prototype.move = function (p3D) {
+            for (var i = 0; i < this.points.length; i++) {
+                var point = this.points[i];
+                point.move(p3D);
+            }
+        }
+        poly.prototype.rotate = function (axis, angle) {
+            for (var i = 0; i < this.points.length; i++) {
+                var point = this.points[i];
+                point.rotate(axis, angle);
+            }
+
+            this.normal.point.rotate(axis, angle);
+        }
+        poly.prototype.put = function (center, fillColor, edgeColor) {
+            // Calulate visibility
+            var normalAngleRad = Math.acos(this.normal.point.z / this.normal.length);
+            if (normalAngleRad / Math.PI * 180 >= 90)
+                return;
+            var lightIntensity = 1 - 2 * (normalAngleRad / Math.PI);
+            ctx.fillStyle = 'rgba(' + fillColor.r + ',' + fillColor.g + ',' + fillColor.b + ',' +
+                (fillColor.a * lightIntensity) + ')';
+            ctx.beginPath();
+            for (var i = 0; i < this.points.length; i++) {
+                var point = this.points[i];
+                if (i)
+                    ctx.lineTo(center.x + parseInt(point.x), center.y - parseInt(point.y));
+                else
+                    ctx.moveTo(center.x + parseInt(point.x), center.y - parseInt(point.y));
+            }
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(' + edgeColor.r + ',' + edgeColor.g + ',' + edgeColor.b + ',' +
+                (edgeColor.a * lightIntensity) + ')';
+            ctx.beginPath();
+            var point = this.points[this.points.length - 1];
+            ctx.moveTo(center.x + parseInt(point.x), center.y - parseInt(point.y));
+            for (var i = 0; i < this.points.length; i++) {
+                var point = this.points[i];
+                ctx.lineTo(center.x + parseInt(point.x), center.y - parseInt(point.y));
+            }
+            ctx.stroke();
+        }
+        function Cube(size, fillColor, edgeColor) {
+            var p000 = new point3D(0, 0, 0);
+            var p0S0 = new point3D(0, size, 0);
+            var pSS0 = new point3D(size, size, 0);
+            var pS00 = new point3D(size, 0, 0);
+            var p00S = new point3D(0, 0, size);
+            var p0SS = new point3D(0, size, size);
+            var pSSS = new point3D(size, size, size);
+            var pS0S = new point3D(size, 0, size);
+            var polys = [];
+            polys.push(new poly(p000, p0S0, pSS0, pS00));
+            polys.push(new poly(pS00, pSS0, pSSS, pS0S));
+            polys.push(new poly(pS0S, pSSS, p0SS, p00S));
+            polys.push(new poly(p00S, p0SS, p0S0, p000));
+            polys.push(new poly(p0S0, p0SS, pSSS, pSS0));
+            polys.push(new poly(p00S, p000, pS00, pS0S));
+            this.polys = polys;
+            var points = [];
+            points.push(p000);
+            points.push(p0S0);
+            points.push(pSS0);
+            points.push(pS00);
+            points.push(p00S);
+            points.push(p0SS);
+            points.push(pSSS);
+            points.push(pS0S);
+            for (var i = 0; i < polys.length; i++) {
+                points.push(polys[i].normal.point);
+            }
+            this.points = points;
+            this.fillColor = fillColor;
+            this.edgeColor = edgeColor;
+        }
+        function move(o3D, p3D) {
+            for (var i = 0; i < o3D.points.length - o3D.polys.length; i++) {
+                var point = o3D.points[i];
+                point.move(p3D);
+            }
+        }
+        function put(o3D, center) {
+            for (var i = 0; i < o3D.polys.length; i++) {
+                var poly = o3D.polys[i];
+                poly.put(center, o3D.fillColor, o3D.edgeColor);
+            }
+        }
+        function rotate(o3D, axis, angle) {
+            for (var i = 0; i < o3D.points.length; i++) {
+                var point = o3D.points[i];
+                point.rotate(axis, angle);
+            }
+        }
+        function init() {
+            canvas = document.getElementById('3Dcube');
+            if (canvas.getContext) {
+                ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // clear canvas
+                cube = new Cube(100, new color(50, 50, 200, 1), new color(60, 60, 210, 1));
+                move(cube, new point3D(-50, -50, -50));
+                rotate(cube, 'x', -40);
+                rotate(cube, 'y', 40);
+                rotate(cube, 'z', -10);
+
+                centerScreen = new point2D(canvas.width / 2, canvas.height / 2);
+                put(cube, centerScreen);
+                timer = setInterval(nextFrame, 1000 / 60);
+            }
+        }
+        function nextFrame() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // clear canvas
+            rotate(cube, 'x', 0.4);
+            rotate(cube, 'y', 0.6);
+            rotate(cube, 'z', 0.3);
+            ctx.fillStyle = 'rgba(50, 50, 200, 1)';
+            ctx.strokeStyle = 'rgba(60, 60, 210, 1)';
+            put(cube, centerScreen);
+        }
+        init()
+    </script>
+</body>
+
+ </html> -->
+<!--<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div style="display: flex;align-items: center;">
+        <div>
+            <span>画笔颜色</span>
+            <input type="color" id="color" />
+        </div>
+    </div>
+    <canvas width="1880" height="900" style="border: 1px solid #000;"></canvas>
+    <script>
+        let can = document.getElementsByTagName("canvas")[0];
+        let color = document.getElementById("color");
+        let ys = "black"
+        let arr = []
+        color.onchange = function () {
+            ys = this.value
+        }
+        let ctx = can.getContext("2d");
+
+        ctx.beginPath();
+        ctx.strokeStyle = "blue";
+        ctx.fillStyle = "rgba(0,255,0,.3)";
+        ctx.lineWidth = 10
+        ctx.moveTo(10, 10);
+        ctx.lineTo(310, 10);
+        ctx.lineTo(155, 310);
+        ctx.lineCap = "square"
+        ctx.lineJoin = "bevel"
+        ctx.closePath()
+        ctx.stroke();
+        ctx.fill()
+
+        ctx.lineWidth = 5
+        ctx.setLineDash([20, 20]);  // [实线长度, 间隙长度]
+        ctx.lineDashOffset = -0;
+        ctx.strokeRect(400, 10, 210, 210);
+
+        ctx.lineWidth = 5
+        ctx.setLineDash([10, 10]);  // [实线长度, 间隙长度]
+        ctx.lineDashOffset = -0;
+        ctx.strokeRect(650, 10, 210, 210);
+
+        ctx.setLineDash([10, 0]);
+        ctx.font = "80px sans-serif"
+        ctx.textAlign = "start"
+        ctx.textBaseline = "alphabetic"
+        ctx.fillText("天若有情", 900, 100);
+        // ctx.direction = "rtl"
+        ctx.strokeText("天易老", 900, 200);
+
+        let img = new Image();
+        img.onload = () => { ctx.drawImage(img, 0, 350) }
+        img.src = "https://th.wallhaven.cc/lg/x8/x88o53.jpg"
+
+        let img1 = document.createElement("img");
+        img1.onload = () => { ctx.drawImage(img, 500, 350, 200, 100) }
+        img1.src = "https://th.wallhaven.cc/lg/x8/x88o53.jpg"
+
+        let img2 = new Image();
+        img2.src = "https://th.wallhaven.cc/lg/x8/x88o53.jpg";
+        img2.onload = () => { 
+            ctx.drawImage(img, 750, 350, 500, 250)
+        }
+
+
+        // 鼠标按下事件
+        can.onmousedown = function (e) {
+            let x = e.clientX - this.offsetLeft
+            let y = e.clientY - this.offsetTop
+            ctx.strokeStyle = ys
+            ctx.beginPath();
+            ctx.moveTo(x, y);//设置起始点
+            this.onmousemove = function (e) { //鼠标拖动事件
+                let x = e.clientX - this.offsetLeft
+                let y = e.clientY - this.offsetTop
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+
+            this.onmouseout = function () { //鼠标移出事件
+                ctx.closePath()
+                this.onmouseout = null;
+                this.onmousemove = null;
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = "red";
+            ctx.save();
+            // ctx.translate(100, 100);
+            // ctx.scale(1, 1);
+            // ctx.globalCompositeOperation = "destination-out"; //全局合成操作
+            // var g1 = ctx.createLinearGradient(0, 0, 0, 300);
+            // g1.addColorStop(0, 'rgb(255,0,0)'); //红  
+            // g1.addColorStop(0.5, 'rgb(0,255,0)');//绿
+            // g1.addColorStop(1, 'rgb(0,0,255)'); //蓝
+            var g1 = ctx.createRadialGradient(100, 150, 10, 300, 150, 50);
+            g1.addColorStop(0.1, 'rgb(255,0,0)');
+            g1.addColorStop(0.5, 'rgb(0,255,0)');
+            g1.addColorStop(1, 'rgb(0,0,255)');
+            // ctx.transform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = g1;
+            ctx.fillRect(0, 0, 400, 300);
+            // ctx.clip();
+            ctx.restore();
+
+            // ctx.save();
+            // ctx.fillRect(0, 0, 50, 50)
+            // ctx.restore();
+        }
+        draw();
+
+        // 鼠标抬起事件
+        can.onmouseup = function () {
+            ctx.closePath()
+            this.onmousemove = null;
+        }
+
+        // ctx.clearRect(0, 0, 2000, 2500)
+    </script>
+</body>
+
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="mycanvas" width="600" height="600">
+            当前浏览器版本不支持，请升级浏览器
+    </canvas>
+    <script> 
+    //因为canvas不能得到已经绘制完成的对象，所以要维持对象的状态
+      //所以要用面向对象实现的编程，维持canvas需要的属性和状态
+      
+      //获取画布
+      var canvas = document.getElementById("mycanvas");
+      //获取上下文
+      var ctx = canvas.getContext("2d");
+  
+      function Rect(x, y, w, h, color){
+        //维护状态
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.color = color;
+      }
+      //更新的方法
+      Rect.prototype.update = function(is){
+        if(is)this.x+=2;
+        else this.x-=2
+      }
+      //渲染
+      Rect.prototype.render = function(){
+        //设置颜色
+        ctx.strokeStyle = this.color;
+        //渲染
+        ctx.strokeRect(this.x, this.y, this.w, this.h)
+      }
+      //创建实例
+      var r1 = new Rect(100, 100, 50, 50, "green");
+      var r2 = new Rect(200, 200, 100, 50, "gray");//初始位置和宽度改变
+
+      //更新方法
+        r2.update();
+        //渲染
+        r2.render();
+      let s = true;
+      let s1 = true;
+      //动画过程
+      //动画过程在主定时器里面，每一帧都会调用实例的更新和渲染方法
+      setInterval(function(){//canvas思想：清屏-更新-渲染
+        //清除r1
+        ctx.clearRect(r1.x-1, r1.y-1, r1.w+2, r1.h+2);
+        if(r1.x == 0){
+            s = true
+        } else if(r1.x == canvas.width - r1.w){
+            s = false
+        }
+        //更新方法
+        r1.update(s);
+        //渲染
+        r1.render();
+
+        // if(r2.x == 0){
+        //     s1 = true
+        // } else if(r2.x == canvas.width - r2.w){
+        //     s1 = false
+        // }
+        // //更新方法
+        // r2.update(s1);
+        // //渲染
+        // r2.render();
+      },10)
+    </script>
+  </body>
+
+</html> -->
+
+
+
+<!-- <!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script src="http://www.html5canvastutorials.com/libraries/three.min.js"></script>
+    <script defer="defer">
+      // revolutions per second
+      var angularSpeed = 0.2; 
+      var lastTime = 0;
+ 
+      // this function is executed on each animation frame
+      function animate(){
+        // update
+        var time = (new Date()).getTime();
+        var timeDiff = time - lastTime;
+        var angleChange = angularSpeed * timeDiff * 2 * Math.PI / 1000;
+        cube.rotation.y += angleChange;
+        lastTime = time;
+ 
+        // render
+        renderer.render(scene, camera);
+ 
+        // request new frame
+        requestAnimationFrame(function(){
+            animate();
+        });
+      }
+ 
+      // renderer
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+ 
+      // camera
+      var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 500;
+ 
+      // scene
+      var scene = new THREE.Scene();
+                
+      // cube
+      var cube = new THREE.Mesh(new THREE.CubeGeometry(200, 200, 200), new THREE.MeshNormalMaterial());
+      cube.overdraw = true;
+      scene.add(cube);
+ 
+      // start animation
+      animate();
+    </script>
+  </body>
+</html> -->
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>canvas事件</title>
+        <style>
+            html,
+            body {
+                height: 100%;
+                background: #eee;
+            }
+
+            canvas {
+                background: #fff;
+                display: block;
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas width="500" height="500" id="canvas"></canvas>
+        <script>
+            // Canvas类
+            class Canvas {
+                blockList = null;
+                ctx = null;
+                canvas = null;
+                constructor(ele) {
+                    // 设置canvas
+                    this.canvas = ele
+                    this.ctx = this.canvas.getContext('2d')
+                    // 色块容器
+                    this.blockList = []
+                    // 事件绑定(这里有一个要注意的，我这里用了bind方法，是为了将“mousedownEvent”方法内的this指向切换到Canvas)
+                    this.canvas.addEventListener('click', this.mousedownEvent.bind(this))	// 点击事件
+                }
+
+                createBlock(option) {
+                    option.Canvas = this
+                    this.blockList.push(new Block(option))
+                    this.painting()
+                }
+                rendering(block) {				// 渲染色块函数
+                    this.ctx.fillStyle = block.color
+                    this.ctx.fillRect(block.x, block.y, block.w, block.h)
+                }
+                painting() {							// 将容器里的色块全部渲染到canvas
+                    // 清空画布（渲染之前应该将老的清空）
+                    this.ctx.fillStyle = '#fff'
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+                    this.blockList.forEach(ele => {
+                        this.rendering(ele)
+                    })
+                }
+
+                mousedownEvent(e) {					// 点击事件
+                    const x = e.offsetX
+                    const y = e.offsetY
+                    // 这里将点击的坐标传给所有色块，根据边界判断方法判断是否在点击在内部。是的话执行色块的事件方法。
+                    this.blockList.forEach(ele => {
+                        if (ele.checkBoundary(x, y)) ele.mousedownEvent(e)
+                    })
+                }
+            }
+            class Block {
+                w = null;
+                h = null;
+                x = null;
+                y = null;
+                color = null;
+                Canvas = null;
+                hierarchy = null;
+                constructor({ w, h, x, y, color, Canvas }) {     // 初始化设置色块相关属性
+                    this.w = w
+                    this.h = h
+                    this.x = x
+                    this.y = y
+                    this.color = color
+                    this.Canvas = Canvas
+                }
+                checkBoundary(x, y) {				// 判断边界方法
+                    return x > this.x && x < (this.x + this.w) && y > this.y && y < (this.y + this.h)
+                }
+                mousedownEvent() {						// 点击事件
+                    console.log(`点击了颜色为${this.color}的色块`)
+                    this.color = 'green';
+                }
+            }
+
+            // 创建Canvas实例，并添加蓝色个宽高100px,位置(100,100)、(300,100)红色和蓝色的色块
+            var canvas = new Canvas(document.getElementById('canvas'))
+            canvas.createBlock({					// 红色
+                x: 100,
+                y: 100,
+                w: 100,
+                h: 100,
+                color: '#f00'
+            })
+            canvas.createBlock({					// 蓝色
+                x: 300,
+                y: 100,
+                w: 100,
+                h: 100,
+                color: '#00f'
+            })
+        </script>
+    </body>
+
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+<title>HTML5 Canvas Demo</title>
+</head>
+<body>
+<div style="margin-left:30px;">
+<canvas id="myCanvas" width="600" height="500" style="border: 5px blue solid"></canvas>
+<br /><br />
+</div>
+</body>
+<script>
+    //初始时画小人
+        var canvas = document.getElementById('myCanvas');
+        if (canvas.getContext){
+            var ctx = canvas.getContext('2d');
+            //画左边头
+            ctx.fillStyle='#1c94c4';
+            ctx.beginPath();
+            ctx.arc(105,75,35,Math.PI/2,Math.PI*1.5,false);
+            ctx.fill();
+            //画右边头		  
+            ctx.beginPath();
+            ctx.arc(110,75,35,Math.PI*1.5,Math.PI/2,false);
+            ctx.fill();
+            //画躯干		
+            ctx.beginPath();
+            ctx.rect(80,120,55,100);
+            ctx.fill();
+            //画左臂		
+            ctx.beginPath();
+            ctx.rect(25,140,50,20);
+            ctx.fill();
+            //画右臂			
+            ctx.beginPath();
+            ctx.rect(140,140,50,20);
+            ctx.fill();
+            //画左腿			
+            ctx.beginPath();
+            ctx.rect(80,225,20,80);
+            ctx.fill();
+            //画右腿		
+            ctx.beginPath();
+            ctx.rect(115,225,20,80);
+            ctx.fill();
+            //添加事件响应
+            canvas.addEventListener('click', function(e){
+                p = getEventPosition(e);
+                reDraw(p,ctx);
+            }, false);
+        }
+    //得到点击的坐标
+    function getEventPosition(ev){
+          var x, y;
+          if (ev.layerX || ev.layerX == 0) {
+            x = ev.layerX;
+            y = ev.layerY;
+         }else if (ev.offsetX || ev.offsetX == 0) { // Opera
+            x = ev.offsetX;
+            y = ev.offsetY;
+          }
+          return {x: x, y: y};
+    }
+    //重绘
+    function reDraw(p,ctx){
+        arr = [
+            {x:105, y:75, width:Math.PI/2, height:Math.PI*1.5},
+            {x:110, y:75, width:Math.PI*1.5, height:Math.PI/2},
+            {x:80, y:120, width:55, height:100},
+            {x:25, y:140, width:50, height:20},
+            {x:140, y:140, width:50, height:20},
+            {x:80, y:225, width:20, height:80},
+            {x:115, y:225, width:20, height:80}		
+        ]
+        //保存序号的数组，这样，即使一次点多个，也能保存——本例中只能每次点一个
+        var whichObject = [];
+        for(var i=0; i < arr.length; i++){
+            //用圆画头
+            if(i<2){
+                ctx.fillStyle='#1c94c4';
+                ctx.beginPath();
+                ctx.arc(arr[i].x,arr[i].y,35,arr[i].width,arr[i].height,false);
+                ctx.fill();
+                if(p && ctx.isPointInPath(p.x, p.y)){
+                    whichObject.push(i);
+                    //修改点中区域的颜色
+                    ctx.fillStyle='#F39814';
+                    ctx.beginPath();
+                    ctx.arc(arr[i].x,arr[i].y,35,arr[i].width,arr[i].height,false);
+                    ctx.fill();
+                }
+            //用矩形画躯干
+            }else{
+                ctx.fillStyle='#1c94c4';
+                ctx.beginPath();
+                ctx.rect(arr[i].x,arr[i].y, arr[i].width,arr[i].height);
+                ctx.fill();
+                if(p && ctx.isPointInPath(p.x, p.y)){
+                    whichObject.push(i);
+                    ctx.fillStyle='red';
+                    ctx.beginPath();
+                    ctx.rect(arr[i].x,arr[i].y, arr[i].width,arr[i].height);
+                    ctx.fill();
+                }
+            }
+        }
+        //显示点击了哪个部分
+        // alert("click:" + whichObject[0]);
+    } 
+</script>
+</html> -->
+

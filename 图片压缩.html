@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input id="file" type="file">
+    <br />
+    <img src="" alt="">
+    <script>
+        let eleFile = document.querySelector('#file');
+
+        // 压缩图片需要的一些元素和对象
+        let reader = new FileReader(), img = new Image();
+
+        // 选择的文件对象
+        let file = null;
+
+        // 缩放图片需要的canvas
+        let canvas = document.createElement('canvas');
+        let context = canvas.getContext('2d');
+
+        // base64地址图片加载完毕后
+        img.onload = function () {
+            // 图片原始尺寸
+            let originWidth = this.width;
+            let originHeight = this.height;
+
+            // 缩放比例
+            let sizes = 0.5;
+
+            // 缩放后的尺寸
+            let maxWidth = originWidth * sizes, maxHeight = originHeight * sizes;
+
+            // 目标尺寸
+            let targetWidth = originWidth, targetHeight = originHeight;
+            
+            // 判断图片原始尺寸是否超过缩放后的尺寸
+            if (originWidth > maxWidth || originHeight > maxHeight) {
+
+                // 判断缩放后的尺寸是否与原图片的尺寸等比
+                if (originWidth / originHeight > maxWidth / maxHeight) {
+
+                    // 更宽，按照宽度限定尺寸
+                    targetWidth = maxWidth;
+                    targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+                } else {
+
+                    // 等比
+                    targetHeight = maxHeight;
+                    targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+                }
+            }
+
+            // canvas对图片进行缩放
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+
+            // 清除画布
+            context.clearRect(0, 0, targetWidth, targetHeight);
+
+            // 图片压缩
+            context.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+            // 获取图片压缩后的base64文件
+            let img_base64 = canvas.toDataURL('image/png');
+            
+            // 回显到页面
+            document.querySelector("img").src = canvas.toDataURL('image/png',1);
+        };
+
+        // 文件base64化，以便获知图片原始尺寸
+        reader.onload = function (e) {
+            img.src = e.target.result;
+        };
+
+        // 监听input标签
+        eleFile.addEventListener('change', function (event) {
+            file = event.target.files[0];
+            // 选择的文件是图片
+            if (file.type.indexOf("image") == 0) {
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+
+</html>

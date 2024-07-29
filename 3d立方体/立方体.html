@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            width: 400px;
+            height: 400px;
+            /* margin: 200px; */
+            perspective: 800px;
+            perspective-origin: 50% 50%;
+            position: relative;
+        }
+
+        .stage {
+            transform-style: preserve-3d;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate3d(-50%, -50%, 0);
+        }
+
+        .ball {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: red;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate3d(-50%, -50%, 0);
+        }
+
+        .ball::before {
+            content: "";
+            position: absolute;
+            top: 1%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            background: -webkit-radial-gradient(50% 0px, circle, #ffffff, rgba(255, 255, 255, 0) 58%);
+            z-index: 2;
+        }
+
+        .text {
+            width: 100px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            white-space: nowrap;
+            /* animation: rotate 5s linear infinite; */
+            animation: rotate 5s linear;
+            backface-visibility: hidden;
+        }
+
+        .text:hover {
+            color: green;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotateY(0deg) translateZ(100px);
+            }
+
+            to {
+                transform: rotateY(360deg) translateZ(100px);
+            }
+        }
+    </style> -->
+
+    <style>
+        .box {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            /* margin: 200px auto; */
+            transform-style: preserve-3d;
+            perspective: 15000px;
+            transition: all 5s linear;
+            /* animation: mytest 5s linear infinite normal; */
+            transform: rotateX(25deg) rotateY(45deg) rotateZ(0deg);
+        }
+
+        @keyframes mytest {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+
+            }
+        }
+
+
+        .test {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            /* box-shadow: 0 0 10px black; */
+            /* border: 1px solid black; */
+
+        }
+
+        .test:nth-child(1) {
+            background-color: red;
+            transform: translateZ(100px);
+        }
+
+        .test:nth-child(2) {
+            background-color: yellow;
+            transform: rotateY(180deg) translateZ(100px);
+        }
+
+        .test:nth-child(3) {
+            background-color: orange;
+            transform: rotateY(90deg) translateZ(100px);
+
+        }
+
+        .test:nth-child(4) {
+            background-color: purple;
+            transform: rotateY(-90deg) translateZ(100px);
+
+        }
+
+        .test:nth-child(5) {
+            background-color: blue;
+            transform: rotateX(90deg) translateZ(100px);
+
+        }
+
+        .test:nth-child(6) {
+            background-color: orangered;
+            transform: rotateX(-90deg) translateZ(100px);
+
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div class="wrapper">
+        <div class="ball"></div>
+        <div class="stage">
+            <div class="text">
+                这里是文字
+            </div>
+        </div>
+    </div> -->
+
+    <div class="box">
+        <div class="test"></div>
+        <div class="test"></div>
+        <div class="test"></div>
+        <div class="test"></div>
+        <div class="test"></div>
+        <div class="test"></div>
+    </div>
+
+
+</body>
+
+</html>

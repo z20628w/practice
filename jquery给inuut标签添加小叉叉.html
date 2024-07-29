@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+  <title>Document</title>
+  <script>
+    
+    //默认class为fork-clear_input，fork-clear_input不可设置样式，否则样式会错乱
+    (function input_clear(option) {
+      let obj = { // 默认配置
+        current: null,//当前被克隆的输入框
+        name: ".fork-clear_input",//标签选择器，限定为class
+        parent: document,//滚动条标签，用于计算小叉叉的位置
+        size: 18,//图标大小
+      }
+      let { name, parent, size, current } = Object.assign(obj, option)
+
+      // 克隆input标签并设置位置
+      function temp(dom) {
+        let ip_width = dom.outerWidth(); //输入框的宽
+
+        let ip_height = dom.outerHeight();//输入框的高
+
+        let ip_top = dom.offset().top;//输入框距离顶部的距离
+
+        let ip_left = dom.offset().left;//输入框距离左侧的距离
+
+        let input = dom.clone(true)//克隆输入框
+        input.removeAttr('id');
+        input.addClass("clone_input_clear");
+        input.removeClass(name.substr(1));
+
+        let div = $(document.createElement("div"));//创建父级容器
+
+        let zIndex = dom.css("z-index") != "auto" ? dom.css("z-index") : 1;//输入框层级
+
+
+
+        // 设置克隆的input标签固定样式
+        let style_input = {
+          width: "100%",
+          height: "100%",
+          boxSizing: "border-box",
+          paddingRight: "30px"
+        }
+        input.css(style_input)
+
+
+
+        // 设置父级容器的位置
+        let style_prant = {
+          position: "fixed",
+          top: ip_top - $(parent).scrollTop() + "px",
+          left: ip_left - $(parent).scrollLeft() + "px",
+          width: ip_width + "px",
+          height: ip_height + "px",
+          zIndex: Number(zIndex) + 2,
+        }
+        div.css(style_prant)
+        div.attr("class", "clone_div_parent")
+
+        // 将克隆的输入框插入父级容器
+        div.append(input)
+
+
+        // 图标样式
+        let style_icon = {
+          width: "20px",
+          height: "20px",
+          position: "absolute",
+          top: (ip_height - 20) / 2 + "px",
+          right: (30 - 20) / 2 + "px",
+          fontSize: size + "px",
+          color: "rgb(102, 102, 102)",
+          cursor: "pointer",
+          display: input.val() == ""?"none":"flex",
+          'justify-content': "center",
+          'align-items': "center",
+          background:"red"
+        }
+        // 创建小图标
+        let i = $(document.createElement("i"));
+        i.attr("class", "clear-input_i iconfont icon-round_close_light")
+        i.css(style_icon) //设置小图标样式
+        // 将图标放入父级容器
+        div.append(i)
+
+        // 将整个克隆体插入页面
+        $("body").append(div)
+      }
+
+      // 非克隆输入框鼠标移入事件
+      function mous() {
+        $(".clone_input_clear").blur();
+        current = $(this);//保存当前被克隆的输入框
+        temp(current) //克隆当前输入框
+      }
+      $(document).on("mouseenter", name, mous)
+
+      // 克隆输入框键盘事件
+      $(document).on("keyup", ".clone_input_clear", function (e) {
+        // 回车键不触发
+        if (e.keyCode == 13) return;
+        if($(this).val() == ""){
+          $(".clear-input_i").css({display:"none"})
+        } else {
+          $(".clear-input_i").css({display:"flex"})
+        }
+      })
+
+      //此方法限定于时间选择器插件【bootstrap-datetimepicker】的输入框
+      $(name).on("dp.change",function (data) {
+        if($(this).val().trim()) $(".clone_input_clear").val($(this).val())
+      })
+
+      //克隆输入框父级标签鼠标移出事件
+      $(document).on("mouseleave", ".clone_div_parent", function () {
+        //鼠标移出时判断克隆的输入框是否处于聚焦状态，不是聚焦状态就删除整个克隆标签
+        if(!$(this).find("input").is(":focus")) $(this).remove()
+      })
+
+      //让克隆出来的输入框点击后直接处于聚焦状态
+      $(document).on("click", ".clone_input_clear", function () {
+        $(this).focus()
+      })
+
+      // 克隆输入框失焦事件事件
+      $(document).on("blur", ".clone_input_clear", function () {
+        // 将克隆输入框中的值赋值给刚刚被克隆的输入框
+        current.val($(this).val()).change();
+        $(".clone_div_parent").remove() //删除克隆体
+        current = null; //将保存的输入框清除
+      })
+
+      // 滚动条事件
+      $(document).on("scroll", parent, function () {
+        let icon_parent = $(".clone_div_parent") //判断克隆体是否存在
+        if (!icon_parent.length) return
+        // 获取原来的定位位置
+        let oldtop = icon_parent.css("top")
+        let oldleft = icon_parent.css("left")
+
+        /**
+         * 计算新的定位位置
+         *      公式
+         *          克隆体原来的定位距离 - （克隆体当前距离浏览器(顶部/左边)的距离 - 被克隆的输入框当前距离浏览器(顶部/左边)的距离）
+         * */
+        let newtop = Number(oldtop.substr(0, oldtop.length - 2)) - (icon_parent.offset().top - current.offset().top)
+        let newleft = Number(oldleft.substr(0, oldleft.length - 2)) - (icon_parent.offset().left - current.offset().left)
+        icon_parent.css({ top: newtop + "px", left: newleft + "px" })
+      })
+
+      // 小叉叉移入移出事件
+      $(document).on("mouseenter mouseleave", ".clear-input_i", function () {
+        let color = $(this).css('color') == "rgb(102, 102, 102)" ? "rgb(129, 179, 236)" : "rgb(102, 102, 102)"
+        $(this).css({ color })
+
+      })
+
+      // 小叉叉点击事件
+      $(document).on("mousedown", ".clear-input_i", function (event) {
+        event.preventDefault();
+        current.val("").change() //清除被克隆输入框的数据
+        $(this).prev().val("") //清除克隆体输入框的数据
+        $(this).css({display:"none"}) //隐藏小叉叉
+      })
+
+	})()
+
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      /* position:absolute; */
+    }
+
+    .fork-clear_input1 {
+      width: 300px;
+      height: 100px;
+      padding: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dd {
+      min-width: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="input-box">
+    <div style="height: 200px;"></div>
+    <input type="text" class="fork-clear_input1 fork-clear_input" style="height:80px" placeholder=" 请输入昵称" value="sfasfasfs" />
+    <input type="text" class="fork-clear_input1 fork-clear_input" placeholder=" 请输入昵称" value="sfasfasfs" />
+    <input type="text" class="fork-clear_input1 fork-clear_input dd" style="height:60px" placeholder=" 请输入昵称" value="sfasfasfs" />
+    <div style="height: 2000px;"></div>
+  </div>
+</body>
+
+</html>

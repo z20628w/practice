@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主页面</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  /**
+   * 开启线程
+  */
+  // let workers = new Worker("http://127.0.0.1:5500/worker.js");
+
+  // // 发送信息到worker进程
+  // workers.postMessage('我是副页面');
+
+  // // 监听接收worker进程信息
+  // workers.onmessage = (e) => {
+  //   console.log(e);
+  //   console.log(`接收到worker传递的信息：${e.data.text}`);
+  // }
+
+  // 销毁线程
+  // workers.terminate();
+
+  /**
+   * 共享线程
+  */
+  let SharedWorkers = new SharedWorker("http://127.0.0.1:5500/SharedWorker.js");
+  SharedWorkers.port.start();
+
+  // 发送信息到worker进程
+  SharedWorkers.port.postMessage('我是共享副页面');
+
+  // 监听接收worker进程信息
+  SharedWorkers.port.onmessage = (e) => {
+    console.log(e);
+    console.log(`接收到共享worker传递的信息：${e.data}`);
+  }
+
+</script>
+
+</html>

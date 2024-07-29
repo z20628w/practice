@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    class A {
+      // 定义一个执行函数
+      eliminateAsync (asyncFnOption, func) {
+        /**
+         * asyncFnOption:异步函数配置
+         *               fn:异步请求函数
+         *               key:异步函数名称
+        */
+        // 异步函数的名称
+        let asyncKey = asyncFnOption.key;
+        this.asyncKey = asyncKey;
+        // 异步函数
+        this[asyncKey] = asyncFnOption.fn;
+        // 返回结果
+        let result = null;
+        let _originMain = this[asyncKey] // 把异步函数赋值到一个变量供后面执行
+
+        this[asyncKey] = (...arg) => {  // 重新定义异步函数
+          // 判断缓存中有没有数据，第一次肯定没有
+          if (result) {
+            // 如果有缓存数据
+            // 如果状态是fulfilled的，就返回缓存数据
+            if (result.status === 'fulfilled') {
+              return result.data
+            } else {
+              // 如果异步函数执行错误了就返回错误信息
+              throw result.error
+            }
+          }
+          // 保存缓存信息，第一次缓存数据是假缓存
+          result = {
+            status: 'pending',
+            data: null,
+            error: null
+          };
+          // 执行一函数，第一次不等待函数执行完，执行下面的抛出错误 throw pro
+          let pro = _originMain(...arg).then(
+            (resp) => {
+              // 把数据缓存起来
+              result.status = 'fulfilled'
+              result.data = resp
+            },
+            (err) => {
+              // 把错误数据缓存起来
+              result.status = 'rejected'
+              result.error = err
+            }
+          )
+
+          //无需等待执行完成，直接报错返回Promise对象，在下面的try catch的catch中监听数据获取成功与否
+          throw pro
+        }
+
+        try {
+          console.log('第一次执行传入方法');
+          this[asyncKey]();//执行重新定义异步函数代表请求完成后才回执行传入的方法
+          // func();//执行传入的方法就会请求完成前后各执行一次
+        } catch (err) {
+          // 此处的err就是重新定义的main方法抛出的Promise对象
+          if (err instanceof Promise) {
+            // 接收到抛出的Promise对象，再等待异步函数执行完成后重新运行传进来的函数，再次运行
+            // 就能拿到缓存的数据了，因为异步函数已经执行完毕，缓存已经保存了
+            err.then(() => {
+              console.log('接口返回数据，再次执行传入方法');
+              func();
+              this[asyncKey] = null;
+            }, () => {
+              console.log("接口返回错误")
+            })
+          }
+        }
+      }
+
+      f1 (key) {
+        return this[key || this.asyncKey]();
+      }
+
+    }
+
+    // 请求函数
+    function main () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve('成功获取结果')
+        }, 1000)
+      })
+    }
+
+
+
+    function f2 () {
+      let aData = new A();
+
+      let fn = () => {
+        // 这里就不需要增加async和await了
+        console.log('f2');
+        let data = aData.f1('main');
+        console.log('data', data);
+      }
+
+      aData.eliminateAsync({ fn: main, key: 'main' }, fn);
+    }
+
+    f2();
+  </script>
+</body>

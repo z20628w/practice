@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./sse.js"></script>
+</head>
+
+<body>
+  <input id="input" type="text" placeholder="请输入要搜索的内容">
+  <button id="btn">搜索</button>
+  <div id="content"></div>
+  <script>
+    let input = document.querySelector('#input');
+    let btn = document.querySelector('#btn');
+    let content = document.querySelector('#content');
+
+    async function readStream (reader,dom) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log('Stream finished');
+          break;
+        }
+
+        // 解码二进制
+        const decoder = new TextDecoder();
+        const text = decoder.decode(value);
+        console.log('val', text);
+        content.innerHTML = content.innerHTML + text;
+
+      }
+    }
+
+    // let ss = null;
+    // const stream = new ReadableStream({
+    //   start (controller) {
+    //     ss = controller;
+    //     // 通过 enqueue 方法向流添加数据
+    //     controller.enqueue('Hello');
+    //     controller.enqueue('World');
+    //     controller.enqueue('我');
+    //     controller.enqueue('是');
+    //     controller.enqueue('大');
+    //     controller.enqueue('帅');
+    //     setTimeout(t => {
+    //     ss.enqueue('哥');
+    //    通知流已经结束
+    //    ss.close();
+    // }, 2000)
+    //   }
+    // });
+    // const reader = stream.getReader();
+    // readStream(reader);
+
+    function msg (text) {
+      fetch('https://api.texttools.cn/api/chat/stream', {
+        method: 'POST',
+        body: JSON.stringify({ content: text }),
+        headers: {
+          'Accept': 'text/event-stream',//长链接主要设置
+          "Content-Type": "application/json",
+        }
+      })
+        .then(response => {
+          // 处理响应
+          console.log('response', response);
+          const reader = response.body.getReader();
+          readStream(reader);
+          // reader.cancel();
+        })
+        .catch(error => {
+          // 处理错误
+          console.log('error', error);
+        });
+    }
+
+    btn.onclick = () => {
+      msg(input.value);
+    }
+
+  </script>
+</body>
+
+</html>

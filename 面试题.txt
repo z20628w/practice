@@ -1,0 +1,229 @@
+css篇
+1.如何使用css画出一个三角形和梯形。
+	梯形
+	        .tx {	
+
+	            width: 200px;
+	
+	            border-top: 0px solid red;
+	
+	            border-right: 100px solid transparent;
+	
+	            border-bottom: 150px solid green;
+	
+	            border-left: 100px solid transparent;
+	        }
+	
+	三角形
+	        .sj {
+
+            	            width: 0px;
+
+	            border-top: 150px solid green;
+
+	            border-right: 150px solid red;
+
+	            border-bottom: 150px solid green;
+
+	            border-left: 150px solid red;
+            
+	        }
+
+2.css让元素四方居中有几种方法。
+	1.定位，上下左右给0,然后外边距给autro。
+	2.父级使用flex布局，主轴与副轴都给center；
+	3.父级给行高并文字居中。(有缺陷)；
+	4.父级设置
+		display:table-cell;//盒模型table-cell;
+		vertical-align: middle;//垂直对齐方式为middle；
+		text-align: center;//文字对齐方式:center;
+
+3.css清除浮动带来的影响。
+	1.父级定义伪类：after
+		给伪类after设置以下属性
+			display:block;//将伪类设置为块级标签
+			clear:both;//清除浮动
+			content:"";//伪类的内容为空
+			visibility:hidden;//占位隐藏
+			height:0；//高度为0；
+		给父级标签设置zoom:1；属性可解决ie6,ie7的浮动问题；
+	2.在结尾处添加空div标签并设置clear:both；属性；
+	3.父级定义overflow:hidden；
+	4.父级标签设置高度。
+
+4.css如何让文字竖着排列
+	1. 给文字父级标签设置writing-mode属性，以下值均可竖排：
+		tb,tb-rl,vertical-lr,vertical-rl，
+
+5.css如何让文字两端对齐
+	1.给文字父级标签设置text-align-last: justify;属性
+
+6.css的transform有几种动画。
+	1.旋转 rotate；
+	2.缩放 scale；
+	3.倾斜 skew；
+	4.平移 translate；
+
+7.css的背景有几种渐变方式：
+	1.1.linear-gradient 线性渐变，指沿着某条直线朝一个方向产生渐变效果。
+	2.radial-gradient: 径向渐变 指从一个中心店开始沿着四周产生渐变效果。
+	3. 重复渐变
+    	repeating-radial-gradient //重复径向渐变
+    	repeating-linear-gradient //重复线性渐变
+
+
+js篇
+
+1.说说浏览器的几种存储方式和区别
+	cookie属于文档对象模型DOM树根节点document，而 sessionStorage 和 localStorage 属于浏览器对象模型BOM的对象window
+
+	其中 sessionStorage 和 localStorage 是 HTML5 Web Storage API 提供的
+
+	sessionStorage：为每一个给定的源（given origin）维持一个独立的存储区域，该存储区域在页面会话期间可用（即只要浏览器处于打开状态，包括页面重新加载和恢复）
+	localStorage：同样的功能，但是在浏览器关闭，然后重新打开后数据仍然存在。
+
+	区别
+	cookie数据始终在同源的http请求中携带（即使不需要），即cookie在浏览器和服务器间来回传递。
+	而sessionStorage和localStorage不会自动把数据发给服务器，仅在本地保存。
+	cookie数据还有路径（path）的概念，可以限制cookie只属于某个路径下。
+	存储大小限制不同，cookie数据不能超过4k，同时因为每次http请求都会携带cookie，所以cookie只适合保存很小的数据，如会话标识。
+	sessionStorage和localStorage 虽然也有存储大小的限制，但比cookie大得多，可以达到5M或更大。
+	数据有效期不同，
+	sessionStorage：仅在当前浏览器窗口关闭前有效，自然也就不可能持久保持；
+	localStorage：始终有效，窗口或浏览器关闭也一直保存，因此用作持久数据；
+	cookie只在设置的cookie过期时间之前一直有效，即使窗口或浏览器关闭。
+	作用域不同，sessionStorage不在不同的浏览器页面中共享，即使是同一个页面；
+	localStorage 在所有同源窗口中都是共享的；
+	cookie也是在所有同源窗口中都是共享的。
+	Web Storage 支持事件通知机制，可以将数据更新的通知发送给监听者。
+	Web Storage 的 api 接口使用更方便，cookie的原生接口不友好，需要自己封装。
+
+2.ajax请求有几个步骤
+	1.创建Ajax对象
+		if(window.XMLHttpRequest){
+		    //创建Ajax对象 获取浏览器内部的一个XMLHttpRequest对象,创建该对象.(非IE6)
+		    var oAjax = new XMLHttpRequest();
+		}else{
+		    //ie6使用的自几特殊的东西
+		    var oAjax = new ActiveXObject("Microsoft.XMLHTTP");             
+		}
+
+	2.链接到服务器
+		//open(方法,地址,异步传输)
+		oAjax.open('GET','./a.txt',true);
+	3.发送请求
+		//发送请求
+    		oAjax.send();
+	4.接受返回值
+		//接收返回
+		        //0 （未初始化）还没有调用open方法
+		        //1 （载入）已经调用send（）方法，正在发送请求
+		        //2（载入完成）已收到全部响应内容
+		        //3（解析）正在解析响应内容
+		        //4（完成）响应内容解析完成，可以在客户端调用
+		        oAjax.onreadystatechange=function(){
+		            //oAjax.readyState浏览器和服务器的交互情况
+		            if(oAjax.readyState == 4)//读取完成
+		            {
+		                if(oAjax.status==200)//http状态码,用来判断是否成功接受并返回文件
+		                {
+		                    alert(oAjax.status+" Success" +oAjax.responseText);//读取响应文件里面的TEXT
+		                }else{
+		                    alert(oAjax.status+" NotFound");
+		                }
+		            }
+		        };
+
+3.说说onready和onload的区别
+	1.onready比onload先执行
+
+	2.onready是页面解析完成之后执行，而onload是在页面所有元素加载完成后执行
+
+	3.onload只执行最后一个而onready可以执行多个
+
+4.如何得到浏览器地址栏的地址
+	使用window.location对象
+
+5.什么是js的事件冒泡，如何解决
+	
+	解决
+		非ie浏览器
+		 e.stopPropagation();方法
+		ie浏览器
+		e.cancelBubble=true；
+
+vue篇
+
+1.如何动态的给data内的对象添加键值对并使其可双向绑定
+	1.使用vue的全局api -- $set(需要添加键值对的对象，键名，键值)；
+	2.使用Object.assign()方法进行对象合并复制；
+
+2.说说vuex的几大核心
+	1.state => 基本数据
+
+	2.getters => 从基本数据派生的数据
+	getters其实就是相当于vue里面的计算属性，我们在这个里面使用的都是一些计算的方法
+
+	3.mutations => 提交更改数据的方法，同步！
+
+	4.actions => 像一个装饰器，包裹mutations，使之可以异步。
+
+	5.modules => 模块化Vuex
+
+3.vue路由有几种模式
+	hash: 使用 URL hash 值来作路由。支持所有浏览器，包括不支持 HTML5 History Api 的浏览器；
+	history : 依赖 HTML5 History API 和服务器配置。具体可以查看 HTML5 History 模式；
+	abstract : 支持所有 JavaScript 运行环境，如 Node.js 服务器端。如果发现没有浏览器的 API，路由会自动强制进入这个模式.
+
+4.说说vue的生命周期。
+	1、beforeCreate（创建前）
+
+	表示实例完全被创建出来之前，vue 实例的挂载元素$el和数据对象 data 都为 undefined，还未初始化。
+
+	2、created（创建后）
+
+	数据对象 data 已存在，可以调用 methods 中的方法，操作 data 中的数据，但 dom 未生成，$el 未存在 。
+
+	3、beforeMount（挂载前）
+
+	vue 实例的 $el 和 data 都已初始化，挂载之前为虚拟的 dom节点，模板已经在内存中编辑完成了，但是尚未把模板渲染到页面中。data.message 未替换。
+
+	4、mounted（挂载后）
+
+	vue 实例挂载完成，data.message 成功渲染。内存中的模板，已经真实的挂载到了页面中，用户已经可以看到渲染好的页面了。实例创建期间的最后一个生命周期函数，当执行完 mounted 就表示，实例已经被完全创建好了，DOM 渲染在 mounted 中就	已经完成了。
+
+	5、beforeUpdate（更新前）
+
+	当 data 变化时，会触发beforeUpdate方法 。data 数据尚未和最新的数据保持同步。
+
+	6、updated（更新后）
+
+	当 data 变化时，会触发 updated 方法。页面和 data 数据已经保持同步了。
+
+	7、beforeDestory（销毁前）
+
+	组件销毁之前调用 ，在这一步，实例仍然完全可用。
+
+	8、destroyed（销毁后）
+
+	组件销毁之后调用，对 data 的改变不会再触发周期函数，vue 实例已解除事件监听和 dom绑定，但 dom 结构依然存在。
+
+5.vue脚手架搭建的项目本地运行如何解决跨域问题
+	在创建一个与src同级的文件，文件名为vue.config.js，在创建一个对象赋值给module.exports变量，此变量不需要定义，然后在对象中创建一个键名为devServer的对象，在其中进行跨域代理配置，如下:
+	{
+	    host: '0.0.0.0',//你的地址
+	    port: “80”,//端口
+	    proxy: {
+	      “/api”: {
+	        target:"",//需要代理到的地址
+	        pathRewrite: {
+	           ['/api']: ""，//将请求地址中的/api清除
+	        }
+	      }
+	    },
+	    disableHostCheck: true
+	  }
+	
+	
+
+

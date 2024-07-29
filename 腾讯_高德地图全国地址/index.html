@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script src="./address_tx.js"></script>
+<script src="./address_gd.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="./index.js"></script>
+<script>
+
+  // 腾讯地图数据
+  function get_tx_address () {
+    // 循环省级数据
+    let list_tx = arr_tx[0].map(t => {
+      let obj = {
+        "adcode": t.id,
+        "name": t.fullname,
+        "name2": t.name,
+        location: t.location,
+        "level": 1,
+        "levelName": "province",
+        "levelText": "省",
+        pinyin: t.pinyin,
+        "children": []
+      };
+
+      let data = {};
+
+      //北京、上海、重庆、天津、香港、澳门特殊操作
+      if (['北京', '上海', '重庆', '天津', '香港', '澳门'].includes(t.name)) {
+        data = {
+          "adcode": t.id,
+          "name": t.fullname,
+          "name2": t.name,
+          location: t.location,
+          "level": 2,
+          "levelName": "city",
+          "levelText": "市",
+          pinyin: t.pinyin,
+          "children": arr_tx[1].slice(t.cidx[0], t.cidx[1] + 1).map(c => {
+            data = {
+              "adcode": c.id,
+              "name": c.fullname,
+              "name2": c.name,
+              location: c.location,
+              "level": 2,
+              "levelName": "area",
+              "levelText": "县/区",
+              pinyin: c.pinyin,
+              "children": []
+            };
+
+            return data;
+          })
+        }
+        obj.children.push(data);
+      } else {
+        // 市数据处理
+        obj.children = arr_tx[1].slice(t.cidx[0], t.cidx[1] + 1).map(c => {
+          data = {
+            "adcode": c.id,
+            "name": c.fullname,
+            "name2": c.name,
+            location: c.location,
+            "level": 2,
+            "levelName": "city",
+            "levelText": "市",
+            pinyin: c.pinyin,
+            "children": arr_tx[2].filter(f => {
+              return (c.id.slice(0, 4) == f.id.slice(0, 4)) && f.id.slice(4, 6) != '99';
+            }).map(m => {
+              row = {
+                "adcode": m.id,
+                "name": m.fullname,
+                "name2": m.name,
+                location: m.location,
+                "level": 3,
+                "levelName": "area",
+                "levelText": "县/区",
+                pinyin: m.pinyin,
+                "children": []
+              };
+
+              return row;
+            })
+          };
+
+          return data;
+        })
+      }
+      return obj;
+    })
+
+    console.log(arr_tx[0], arr_tx[1], arr_tx[2]);
+    console.log(list_tx);
+  }
+
+  // 高德地图省市区镇数据列表
+  let list_gd = [];
+
+  // 镇/街道数据对象
+  let street_list = {};
+
+  // 获取高德地图中所有省份的省市区镇数据
+  let get_gd_address = (key, i) => {
+    $.ajax({
+      url: `https://restapi.amap.com/v3/config/district?keywords=${key}&subdistrict=3&key=4e006f84cf6ec295172511b3dc8d7c38`,
+      success (data) {
+        let arr = data.districts.map(t => {
+          t.children = t.districts;
+          delete t.districts;
+        });
+
+        list_gd.push(...data.districts);
+
+        if (i == 33) {
+          // 已获取高德所有数据
+          console.log("list_gd", list_gd);
+
+          commonRecursionFn(list_gd, (item, index, list, parentItem, level) => {
+            if (!item.children) item.children = item.districts;
+            // 镇/街道级
+            if (item.level == "street") {
+              let location = item.center.split(',');
+              let obj = {
+                "adcode": item.adcode,
+                "name": item.name,
+                "name2": item.name,
+                location: {
+                  "lng": location[0],
+                  "lat": location[1],
+                },
+                "level": 4,
+                "levelName": "street",
+                "levelText": "镇/街道",
+                pinyin: item.pinyin,
+                "children": []
+              }
+              if (!street_list[item.adcode]) street_list[item.adcode] = [];
+
+              street_list[item.adcode].push(obj);
+            }
+            return item;
+          });
+
+          // 设置第四级区镇数据
+          arr_tx[2] = arr_tx[2].map(t => {
+            t.children = street_list[t.id];
+            return t;
+          });
+          
+          get_tx_address();
+        }
+      }
+    })
+  }
+
+  arr_gd.forEach(async (t, i) => {
+    get_gd_address(t.adcode, i);
+  })
+
+
+
+</script>
+
+
+</html>

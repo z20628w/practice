@@ -1,0 +1,37 @@
+// element表格吸顶方法
+Vue.prototype.$handleScroll = function(ref) {
+  /**
+   * ref：表格vue实例对象名
+   * */ 
+
+ //滑动的距离
+  let scrollTop = document.getElementsByTagName("html")[0].scrollTop 
+
+  // 获取当前页面内容区域距离浏览器顶部的距离
+  let app_top = document.getElementsByClassName("clear_float")[0].getBoundingClientRect().top;
+
+  //表格距离内容区顶部的距离 【表格距离浏览器顶部的距离 - 内容区域距离顶部的距离 = 表格距离内容区顶部的距离】
+  let heightTop = this.$refs[ref].$el.getBoundingClientRect().top - app_top
+
+  //表头到达页面顶部固定表头
+  if (scrollTop >= heightTop) {
+
+  // 滑动的距离 - 表格距离内容区顶部的距离 = 列头当前的位置
+  let top = scrollTop - (heightTop)
+
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.position = 'relative'
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.zIndex = '5'
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.top = `${top}px`
+
+  } else {
+
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.position = ''
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.top = ''
+    document.getElementsByClassName("el-table__header-wrapper")[0].style.zIndex = ''
+
+  }
+}
+
+
+//调用
+document.onscroll = () => this.$handleScroll("filterTable");

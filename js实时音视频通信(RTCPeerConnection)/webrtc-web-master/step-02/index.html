@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Realtime communication with WebRTC</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+  <h1>Realtime communication with WebRTC</h1>
+
+  <!-- 本地视频流 -->
+  <video id="localVideo" autoplay playsinline></video>
+
+  <!-- 远程视频流 -->
+  <video id="remoteVideo" autoplay playsinline></video>
+
+  <div>
+    <button id="startButton">开启摄像头</button>
+    <button id="callButton">建立对等连接</button>
+    <button id="hangupButton">关闭连接</button>
+  </div>
+
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

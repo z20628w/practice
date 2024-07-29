@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原生调起摄像头及获取当前摄像头列表</title>
+</head>
+
+<body>
+  <div id="video-test"></div>
+  <script>
+    // 原生调起摄像头
+    (function () {
+      var constraints = {
+        audio: false,
+        video: {
+          width: { min: 1280 },
+          height: { min: 720 },
+          // environment_后置摄像头 user_前置摄像头
+          // facingMode: { exact: 'environment' } // 强制使用指定摄像头
+          facingMode: "environment",//优先使用指定摄像头，如果有的话
+
+          // 帧率
+          frameRate: { ideal: 10, max: 15 }
+        }
+      }
+      navigator.mediaDevices.getUserMedia(constraints).then((mediaStream) => {
+        let video = document.createElement('video');
+        //设置video元素参数
+        video.setAttribute('autoplay', 'autoplay');
+        video.style.width = '100vw';
+        video.style.height = '100vh';
+        video.style.objectFit = 'cover';
+        document.getElementById(`video-test`).appendChild(video);
+        try {
+          video.srcObject = mediaStream;
+        }
+        catch (error) {
+          video.src = window.URL.createObjectURL(mediaStream);
+        }
+        video.onloadedmetadata = function (e) {
+          video.play();
+        }
+      })
+    })();
+  </script>
+</body>
+
+</html>

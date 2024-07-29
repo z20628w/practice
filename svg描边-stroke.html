@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .shape {
+      stroke-width: 6px;
+      fill: transparent;
+      stroke: #009FFD;
+      stroke-dasharray: 10, 10, 5, 5;
+      stroke-dashoffset: 0;
+      stroke-linecap: round;
+      stroke-linejoin: miter;
+      transition: 1s all ease;
+    }
+
+    svg:hover .shape {
+      stroke-dasharray: 5, 5, 10, 10;
+      stroke: #06D6A0
+    }
+  </style>
+</head>
+
+<body>
+  <svg height="40" width="150">
+    <rect class="shape" height="40" width="150" />
+    <rect class="shape shape1" height="20" width="80" />
+  </svg>
+  <svg>
+    <g fill='none' stroke='black' stroke-width='10'>
+      <path stroke-linecap='butt' d='M5 20 l215 0' />
+      <path stroke-linecap='round' d='M4 40 l215 0' stroke='red' stroke-dasharray='10, 10, 5, 5' />
+      <path stroke-linecap='square' d='M5 60 l215 0' />
+    </g>
+  </svg>
+</body>
+
+</html>

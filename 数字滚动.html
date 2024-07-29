@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue学习</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.8/vue.min.js"></script>
+    <style>
+        ul.scroll_number {
+            display: flex;
+            box-sizing: border-box;
+            padding: 20px 30px;
+        }
+
+        ul.scroll_number>li {
+            list-style: none;
+            color: #ff6744;
+        }
+
+        ul.scroll_number>li.num_pos {
+            margin: 0 2px;
+            width: 35px;
+            height: 40px;
+            border-radius: 4px;
+            background: green;
+            background-size: 100% 100%;
+            font-size: 20px;
+        }
+
+        li.num_pos>span.numPart {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+
+        span.numPart>span.num {
+            position: absolute;
+            height: 1100%;
+            top: 0;
+            left: 50%;
+            transition: transform 0.2s ease-in-out;
+            transform: translate(-50%, 0);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: center;
+        }
+
+        ul.scroll_number>li>.is_comp {
+            height: 100%;
+            font-size: 30px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        span.numPart>span.num {
+            transform: translate(-50%, var(--cont, 0));
+        }
+
+        span.numPart>span.num>span {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+
+</head>
+
+<div id="app">
+    <!-- 滚动数字 -->
+    <ul class="scroll_number">
+        <!-- 数字列 -->
+        <li :class="{'num_pos': !isNaN(item)}" v-for="(item,index) in clocks" :key="index">
+            <!-- 数字盒子 -->
+            <span v-if="!isNaN(item)" :class="{'numPart': !isNaN(item)}">
+                <!-- 滚动的数字 -->
+                <span ref="numRef" :style="{'--cont':`${item * -10}%`}" class="num">
+                    <span>0</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <span>6</span>
+                    <span>7</span>
+                    <span>8</span>
+                    <span>9</span>
+                </span>
+            </span>
+            <!-- 千分位符号 -->
+            <span v-else class="is_comp">{{item}}</span>
+        </li>
+    </ul>
+</div>
+
+<script>
+    let mp = new Vue({
+        el: '#app',
+        data: {
+            // 展示的滚动数字的数组,只用于标签渲染，与显示数据无关
+            // clocks: ['1', ',', '0', '0', '0', ',', '0', '0', '0', ',', '0', '0', '0', ',', '0', '0', '0', ',', '0', '0', '0'],
+            clocks: [],
+        },
+        methods: {
+            // 设置每一位数字的偏移
+            setNumberTransform (count, n = 9, is_comp = true) {
+                /**
+                 * count：需要滚动成的数字
+                 * n:显示的数字位数 
+                 * is_comp:是否需要千位符
+                 * */
+
+                // 给数字添加千分位符
+                function format (num) {
+                    // 将数字翻转，然后每间隔三个数字添加一个千位符
+                    let data = String(num || 0).split('').reverse();
+                    data = data.map((t, i) => {
+                        if (((i + 1) % 3) == 0 && i) {
+                            t = `,${t}`;
+                        }
+
+                        return t;
+                    })
+                    return data.reverse().join('');
+                }
+
+                // 将数字的长度变为指定长度
+                let arr = (String(count || 0).padStart(n, '0')).split("");
+                // 添加千位符
+                if (is_comp) arr = format(arr.join('')).split("");
+                this.clocks = arr;
+            }
+        },
+        mounted () {
+            this.setNumberTransform(0, 16);
+            setInterval(() => {
+                // 获取随机数
+                let count = ((min, max) => Math.floor(Math.random() * (max - min + 1) + min))(1, 999999999999999);
+                this.setNumberTransform(count, 16);
+            }, 500);
+        }
+    })
+</script>
+</body>
+
+</html>

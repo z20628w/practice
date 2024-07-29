@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主页面</title>
+</head>
+
+<body>
+  <button onclick="tt(500)">生成500张二维码</button>
+  <div id="img"></div>
+</body>
+<script>
+  /**
+   * 开启线程
+  */
+  let workers = new Worker("./worker_create_QRcode.js");
+
+  // 发送信息到worker进程
+  workers.postMessage('我是主页面');
+
+  // 监听接收worker进程信息
+  workers.onmessage = (e) => {
+    console.log(e);
+    let data = e.data;
+    console.log(`接收到worker传递的信息：${e.data.text}`, e.data);
+
+    if (data.type == 'endQRcode') {
+      setImg(data.data)
+    }
+  }
+
+  // 发送二维码生成命令
+  function tt (num = 1) {
+    workers.postMessage({ type: "createQRcode", endKey: "endQRcode", total: num });
+  }
+
+  // 将二维码渲染到页面
+  async function setImg (arr = [], index = 0) {
+    let dom = document.querySelector('#img');
+
+    async function ss (index = 0, total = 0) {
+      // 将元素字符串插入到目标容器的末尾
+      dom.insertAdjacentHTML('beforeend', arr[index].SvgTag);
+
+      if (index < total) requestAnimationFrame(() => {
+        ss(index + 1, total);
+      })
+    }
+
+    await ss(index, arr.length - 1);
+
+  }
+
+  // 销毁线程
+  // workers.terminate();
+
+</script>
+
+</html>

@@ -1,0 +1,65 @@
+{
+  "name": "测试pwa",
+  "short_name": "测试pwa",
+  "theme_color": "#F3F3F3",
+  "icons": [
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "72x72",
+    //   "type": "image/png"
+    // },
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "96x96",
+    //   "type": "image/png"
+    // },
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "128x128",
+    //   "type": "image/png"
+    // },
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "144x144",
+    //   "type": "image/png"
+    // },
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "152x152",
+    //   "type": "image/png"
+    // },
+    {
+      "src": "./icon/cs.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "384x384",
+    //   "type": "image/png"
+    // },
+    // {
+    //   "src": "./icon/cs.png",
+    //   "sizes": "512x512",
+    //   "type": "image/png"
+    // }
+  ],
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F3F3F3",
+  "description": "测试测试测试",
+  "share_target": {
+    "action": "compose/share",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    },
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded"
+  },
+  "scope": "/",
+  "orientation": "portrait",
+  "related_applications": [],
+  "prefer_related_applications": false
+}

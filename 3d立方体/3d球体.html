@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: lightgray
+        }
+
+        .stage {
+            width: 50%;
+            height: 50%;
+            margin: auto auto;
+            perspective: 0px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .unit {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: mytest 36s linear infinite normal;
+        }
+
+        @keyframes mytest {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateX(0deg) rotateY(360deg);
+
+            }
+        }
+
+        .ball {
+            /* width: 100px; */
+            /* height: 20px; */
+            /* height: 45px; */
+            /* height: 10%; */
+            position: absolute;
+            opacity: .8;
+            top: 50%;
+            left: 50%;
+            /* margin-top: -50px; */
+            /* margin-left: -30px; */
+            /* border-radius: 50% */
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            color: skyblue;
+        }
+
+        .ball:hover{
+            background: black !important;
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="stage">
+        <div class="unit"></div>
+    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery-mousewheel/3.1.9/jquery.mousewheel.js"></script>
+    <script>$document = $(document); $unit = $(".unit");
+        //每一层小ball组件的个数，写入数组 
+        var framefloor = [12, 11, 11, 10, 9, 7, 6, 5, 2, 1];
+        //层数 
+        var floor = framefloor.length;
+        //舞台的默认景深perspective 
+        var a = parseInt($(".stage").css("perspective"));
+        circle(framefloor, 240);
+        // 参数 每层的组件数量（数组） 半径（默认为 300） 
+        function circle(framefloor, r) {
+            //半径 
+            var r = r || 300;
+            //构造上下半球 
+            for (let j = 0; j < floor; j++) {
+                half(1,j);
+                if (j == 0) continue; 
+                half(-1,j)
+            };
+            function half(flag,j) {
+                for (var i = 0; i < framefloor[j]; i++) {
+
+                    $(`<div class='ball'>【${i}】列【${j*flag}】行</div>`).css({
+                        //注意这里 先变化x在变化Y 和先变化Y在变化X 最后呈现的是两种不同的结果 
+                        "transform": `rotateY(${360 / framefloor[j] * i}deg) rotateX(${90 / (floor - 1) * j * flag}deg) translateZ(${r}px)`,
+                        "background": "rgb(" + parseInt(Math.random() * 255) + "," + parseInt(Math.random() * 255) + "," + parseInt(Math.random() * 255) + ")"
+                    }).appendTo($unit)
+                }
+            }
+        }
+        // 拖拽函数 
+        var drag = function (obj) {
+            $document.bind("mousedown", start);
+            function start(event) {
+                if (event.button == 0) {
+                    //判断是否点击鼠标左键
+                    //movemove事件必须绑定到$(document)上，鼠标移动是在整个屏幕上的 
+                    gapx = event.clientX; gapy = event.clientY; $(document).bind("mousemove", move);
+                    //此处的$(document)可以改为obj 
+                    $(document).bind("mouseup", stop)
+                } return false;
+                //阻止默认事件或冒泡
+            }
+            function move(event) {
+                // console.log(event.clientX)
+                // console.log(event.clientY)
+                obj.css({ "transform": "rotateX(" + (event.clientY - gapy) / 10 + "deg) rotateY(" + (event.clientX - gapx) / -10 + "deg)", }); return false;
+                //阻止默认事件或冒泡
+            } function stop() {
+                //解绑定，这一步很必要 
+                $(document).unbind("mousemove", move); $(document).unbind("mouseup", stop)
+            }
+        }
+        drag($unit);
+        //传入的必须是jQuery对象，否则不能调用jQuery的自定义函数
+        // console.log($unit)
+        $document.mousewheel(function (event, delta) { 
+            console.log('执行')
+            event.preventDefault(); $(".stage").css({ "perspective": (a -= delta * 15) + "px", }) 
+        })
+
+        $document.on("click",".ball",function(){
+            alert("您点击了"+$(this).html())
+        })
+
+
+    </script>
+</body>
+
+</html>

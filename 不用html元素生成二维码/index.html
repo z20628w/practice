@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./qrcode-generator/index.js"></script>
+  <style>
+    #qr-code {
+      width: 300px;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="placeHolder"></div>
+  <script>
+    var typeNumber = 1;
+    var errorCorrectionLevel = 'L';
+    var qr = qrcode(typeNumber, errorCorrectionLevel);
+    qr.addData('Hi!');
+    qr.make();
+    console.log(qr);
+    console.log("createImgTag==>", qr.createImgTag());
+    console.log("createASCII==>", qr.createASCII());
+    console.log("createSvgTag==>", qr.createSvgTag());
+    console.log("createDataURL==>", qr.createDataURL());
+    console.log("createTableTag==>", qr.createTableTag());
+    document.getElementById('placeHolder').innerHTML = qr.createASCII(1,0);
+  </script>
+</body>
+
+</html>

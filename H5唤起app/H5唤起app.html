@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/callapp-lib@3.1.2/dist/index.umd.js"></script>
+</head>
+
+<body>
+    <button id="app">唤起</button>
+    <script>
+        window.onload = function () {
+            let openApp = () => {
+                const options = {
+                    scheme: {
+                        protocol: 'huayunyunlianmeng', //URL Scheme 的 scheme 字段，要打开的 APP 的标识
+                        host: "yunlianmeng",//安卓环境需要的host
+                    },
+
+                    intent: { //安卓原生谷歌浏览器必须传递 Intent 协议地址，才能唤起 APP
+
+                        package: 'com.huayun.ylm.test',//包名
+
+                        scheme: "huayunyunlianmeng"
+
+                    },
+
+                    timeout: '2500', //多少秒后判断唤起失败
+
+                    appstore: "http://www.baidu.com", //APP 的 App Store
+
+                    yingyongbao: "http://www.baidu.com", //APP 的应用宝地址，
+
+                    fallback: "http://www.baidu.com" //唤端失败后跳转的地址。
+
+                };
+
+                const callLib = new CallApp(options);
+
+                callLib.open({
+                    path: "",
+
+                    param: {},//要传递的参数
+
+                    // 自定义唤端失败回调函数,传递callback会覆盖callapp-lib库中默认的唤端失败处理逻辑
+                    // callback: function () {
+                    //     alert('唤端失败的处理');
+                    // }
+
+                })
+
+            }
+
+            document.getElementById('app').onclick = () => openApp();
+
+        }
+
+    </script>
+</body>
+
+</html>

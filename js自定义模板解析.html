@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 模板文件 -->
+    <script type="text/html" id="ss">
+        <ul>
+            <li><%-- a --></li>
+            <li><%-- b --></li>
+            <li><%-- c --></li>
+            <li><%-- d --></li>
+            <li><%-- e --></li>
+            <li><%-- f --></li>
+            <li><%-- g --></li>
+            <li><%-- h --></li>
+            <li><%-- i --></li>
+            <li><%-- j --></li>
+        </ul>
+    </script>
+    <script>
+        // 动态数据
+        let dx = {
+            a: "a的值",
+            b: "b的值",
+            c: "c的值",
+            d: "d的值",
+            e: "e的值",
+            f: "f的值",
+            g: "g的值",
+            h: "h的值",
+            i: "i的值",
+            j: "j的值",
+        };
+
+        // 模板解析
+        function temp(dom, obj = {}) {
+            /**
+             * dom:原生dom对象
+             * obj:模板中变量对应的数据对象
+             * */
+
+            // 拿到模板
+            let html = dom.innerHTML.trim();
+
+            // 模板规定的变量容器["容器开始符"，"容器结束符"];
+            let container = ["<%--", "-->"];
+
+            /**
+             * 遍历出模板中需要替换的变量
+            */
+
+            // 开始遍历字符串
+            function strF(test, container, arr = [], start = 0) {
+                /**
+                 * str:需要被截取的字符串
+                 * container:遍历字符串中包裹变量的容器首尾
+                 * arr:获取的变量
+                 * start:字符串从那里开始截取
+                */
+
+                /**
+                 * 判断是否还存在容器，规则如下
+                 *       如果在当前字符串中容器首尾都还存在且中间没有以下符号中的任何一个就说明容器存在
+                 *              '<','>',"</"
+                */
+
+                let str = test.substr(start);
+
+                // 截取第一对容器首尾在字符串中的位置
+                let one = str.indexOf(container[0]) + (container[0].length - 1);
+                let end = str.indexOf(container[1]);
+
+                // 截取容器首尾符号存在时中间的字符
+                let centCont = (one != -1 && end != -1) ? str.substring(one + 1, end) : false;
+
+                // 判断是否存在中间的字符
+                if (centCont !== false) {
+
+                    // 判断容器中间的字符是否存在标签，存在标签就说明当前的容器不是真正的容器，只是和容器耦合的字符串
+                    if (centCont.indexOf('<') == -1 && centCont.indexOf('>') == -1 && centCont.indexOf('</') == -1) {
+
+                        // 是容器，存入容器中的字符,继续递归获取下一个容器
+                        arr = [...arr, centCont, ...strF(str, container, arr, end + container[1].length - 1)];
+
+                    } else {
+                        // 耦合,不存入容器中的字符
+                        arr = [...arr, ...strF(str, container, arr, end + container[1].length - 1)];
+                    }
+
+                }
+
+                return arr;
+
+            }
+
+            // 得到变量组
+            let ainer = strF(html, container);
+
+            // 将变量替换为数据
+            ainer.forEach(item => {
+                html = html.replace(`${container[0]}${item}${container[1]}`, item.trim() ? obj[item.trim()] : '')
+            });
+
+            //返回变量数据替换完成的html模板
+            return html;
+        }
+
+        // 渲染到页面
+        document.body.innerHTML = temp(document.getElementById("ss"), dx);
+
+    </script>
+</body>
+
+</html>
