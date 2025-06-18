@@ -1,0 +1,65 @@
+{
+  // 必须的
+  "manifest_version": 3,
+  "name": "广州南方学院学习后台平时作业答案获取",
+  "version": "1.0.0",
+  // 常用
+  "description": "广州南方学院学习后台平时作业答案获取",
+  "author": "zw",
+  "background": {
+    "service_worker": "background.js",
+    // 开启模块化
+    "type": "module"
+  },
+  "options_ui": { // 配置options页面
+    "page": "index.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [ // 配置content scripts
+    {
+      "matches": [ // 指定此内容脚本将被注入到哪些页面
+        "*://*.edu-edu.com/*"
+      ],
+      "js": [ // 要注入匹配页面的 JavaScript 文件列表。它们按照它们在此数组中出现的顺序注入（比如后者依赖前者，就得按顺序引入）。
+        "index.js"
+      ],
+      "css": [], //要注入匹配页面的 CSS 文件列表。在为页面构造或显示任何 DOM 之前，它们按照它们在此数组中出现的顺序注入。
+      "all_frames": true //默认为false，表示仅匹配顶部框架。如果指定true，它将注入所有框架，即使该框架不是选项卡中最顶层的框架。每个框架都独立检查 URL 要求，如果不满足 URL 要求，它不会注入子框架。
+    }
+  ],
+  "web_accessible_resources": [ // 配置Web可访问资源
+    {
+      "matches": [
+        "*://*.edu-edu.com/*"
+      ],
+      "resources": [
+        "index.css"
+      ]
+    }
+  ],
+  "host_permissions": [ // 与主机权限相关，推荐使用同样的设置
+    "https://*/*"
+  ],
+  "permissions": [ // 配置插件所使用的api权限
+    "storage",
+    "contextMenus",
+    "cookies"
+  ],
+  "action": { // 使用action api配置插件工具栏中图标、弹出页面等内容
+    "default_icon": {
+      "16": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png",
+      "64": "logo.png",
+      "128": "logo.png"
+    },
+    "default_popup": "popup.html", // 配置弹窗操作界面
+    "icons": {
+      "16": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png",
+      "64": "logo.png",
+      "128": "logo.png"
+    }
+  }
+}
