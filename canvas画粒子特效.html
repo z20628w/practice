@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #canvas {
+        width: 100vw;
+        height: 100vh;
+    }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+    let WIDTH, HEIGHT, cxt, raf, points;
+    window.onload = () => {
+        WIDTH = document.body.clientWidth;
+        HEIGHT = document.body.clientHeight;
+        const canvas = document.getElementById('canvas'); //主画布 
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+        ctx = canvas.getContext('2d');
+        points = createViceCanvas(); // 创建副画布，写出想展示的文字，并且获取文字的位置信息。  
+        init();
+    }
+
+    // 创建画布
+    function createViceCanvas() {
+        const viceCanvas = document.createElement('canvas');
+        viceCanvas.width = WIDTH;
+        viceCanvas.height = HEIGHT;
+        let viceCxt = viceCanvas.getContext('2d');
+        initCanvas(viceCxt);
+        return getFontInfo(viceCxt); // 获取文字粒子的位置信息
+    }
+
+    // 初始化画布   
+    function initCanvas(ctx) {
+        const font = '30年河东，30年河西';
+        ctx.font = '100px Arial';
+        const measure = ctx.measureText(font);
+        ctx.fillText(font, (WIDTH - measure.width) / 2, HEIGHT / 2);
+    }
+
+    //文字取点，获取每个文字在画布中的坐标。 
+    function getFontInfo(ctx) {
+        const particles = []; {
+            const font = '30年河东，30年河西';
+            const measure = ctx.measureText(font);
+            let width = Math.ceil(measure.width);
+            // 获取指定文字的坐标位置,返回一个数组，该数组按照红绿蓝透明度 (RGBA) 的顺序存储了每个像素的颜色值。每个像素占用四个整数值（0-255），依次表示红色、绿色、蓝色和 Alpha 通道的强度
+            let imageData = ctx.getImageData((WIDTH - width) / 2, HEIGHT / 2 - 100, width, 120);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                // 将此区域中有颜色的点取出
+                if (imageData.data[i + 3] == 255) {
+                    //当前为第几个像素
+                    let index = i / 4;
+                    let x = index % width; //计算当前像素的x轴坐标
+                    let y = Math.ceil(index / width); //计算当前像素的y轴坐标
+
+                    // 修改像素的颜色
+                    let r = imageData.data[i] = 0; // Red
+                    let g = imageData.data[i + 1] = 0; // Green
+                    let b = imageData.data[i + 2] = 255; // Blue
+                    let a = imageData.data[i + 3] = 255; // Alpha
+
+                    particles.push(new Particle({ x, y, color: `rgba(${r},${g},${b},${a})` }));
+                }
+            }
+
+            // 将修改后的像素数据放回画布
+            ctx.putImageData(imageData, 0, 200);
+
+        }; {
+            let imageData = ctx.getImageData(0, 0, WIDTH, HEIGHT).data;
+            for (let x = 0; x < WIDTH; x += 4) {
+                for (let y = 0; y < HEIGHT; y += 4) {
+                    const fontIndex = (x + y * WIDTH) * 4 + 3;
+                    if (imageData[fontIndex] > 0) {
+                        particles.push(new Particle({ x, y, }))
+                    }
+                }
+            }
+        }
+        return particles;
+    }
+
+    // 每个粒子的移动轨迹
+    class Particle {
+        constructor(center) {
+            this.x = center.x; // 记录点位最终应该停留在的x轴位置  
+            this.y = center.y; // 记录点位最终应该停留在的y轴位置   
+            this.color = center.color; //像素点原本颜色
+            this.item = 0; // 贝塞尔曲线系数     
+            this.vx = 20; // 点位在x轴的移动速度  】
+            this.vy = 16; // 点位在y轴的移动速度       
+            this.initX = Math.random() * WIDTH; // 点位随机在画布中的x坐标        
+            this.initY = Math.random() * HEIGHT; // 点位随机在画布中的y坐标   
+        }
+        draw() { // 绘制点位       
+            ctx.beginPath();
+            // 贝塞尔曲线，获取每一个tick点位所在位置    
+            const { x, y } = threeBezier(this.item, [this.initX, this.initY], [this.x, this.y], [this.x, this.y], [this.x, this.y]);
+            ctx.arc(x, y, 2, 0, 2 * Math.PI, true);
+            ctx.fillStyle = this.color || "red";
+            ctx.fill();
+            ctx.closePath();
+            this.speed(); // 点位下次tick绘制时的坐标   
+        }
+        speed() { // 每个点位绘制后的坐标       
+            this.initX += this.vx;
+            this.initY += this.vy;
+            this.item += 0.005;
+        }
+    }
+
+    // 随机粒子， 用来做移动，并且最后要组成一个文字(使用的贝塞尔曲线)
+    const threeBezier = (t, p1, p2, cp1, cp2) => {
+        /*
+         *t:贝塞尔曲线系数，0-1之前。
+         *p1: 轨迹移动的起点。
+         *p2: 轨迹移动的终点。
+         *cp1: 第一个控制点。
+         *cp2: 第二个控制点。
+         *第四个参数和第五个参数可以瞎鸡儿传，主要是控制运动的轨迹，但是p1,p2这俩参数不能乱，尤其是p2
+         */
+        const [startX, startY] = p1;
+        const [cpX1, cpY1] = cp1;
+        const [cpX2, cpY2] = cp2;
+        const [endX, endY] = p2;
+        /**
+         * 三阶贝赛尔曲线
+         */
+        let x = startX * Math.pow(1 - t, 3) + 3 * cpX1 * t * Math.pow(1 - t, 2) + 3 * cpX2 * Math.pow(t, 2) * (1 - t) + endX * Math.pow(t, 3);
+        let y = startY * Math.pow(1 - t, 3) + 3 * cpY1 * t * Math.pow(1 - t, 2) + 3 * cpY2 * Math.pow(t, 2) * (1 - t) + endY * Math.pow(t, 3);
+        // return { x, y, }
+        return bsr_calc(3, t, [
+            { x: p1[0], y: p1[1] },
+            { x: cp1[0], y: cp1[1] },
+            { x: cp2[0], y: cp2[1] },
+            { x: p2[0], y: p2[1] },
+        ]);
+    }
+
+    // n次贝塞尔曲线计算方法
+    function bsr_calc(n = 3, t = 1, p_arr = []) {
+        /**
+         * n：贝塞尔阶数
+         * t：贝塞尔曲线系数，0-1之间；
+         * p_arr:贝塞尔曲线的点列表,点数量为n+1(如:三阶贝塞尔曲线有四个点);
+         */
+        let x = 0;
+        let y = 0;
+        for (var i = 0; i < n; i++) {
+            let n_x = (Math.pow(t, i) * Math.pow(1 - t, n - i) * p_arr[i].x);
+            let n_y = (Math.pow(t, i) * Math.pow(1 - t, n - i) * p_arr[i].y);
+
+            if (i > 0) {
+                n_x *= n;
+                n_y *= n;
+            }
+
+            x += n_x;
+            y += n_y;
+        }
+
+        x += (Math.pow(t, n) * p_arr[n].x);
+        y += (Math.pow(t, n) * p_arr[n].y);
+
+        return { x, y };
+    };
+
+    // 运行动画
+    function init() {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        points.forEach((value) => {
+            value.draw();
+        });
+
+        // 开始动画
+        raf = window.requestAnimationFrame(init);
+
+        // 结束动画
+        if (points[0].item >= 1) {
+            window.cancelAnimationFrame(raf)
+        }
+    }
+    </script>
+</body>
+
+</html>

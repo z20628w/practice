@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    html,
+    body {
+        padding: 0 15px;
+        scroll-behavior: smooth;
+        /*滚动联动核心代码*/
+        timeline-scope: --t1, --t2, --t3, --t4, --t5, --t6;
+    }
+
+    h2 {
+        margin: 0;
+        padding: .8em 0;
+        scroll-margin: 20px;
+    }
+
+    .content {
+        /*滚动联动核心代码*/
+        view-timeline-name: var(--s);
+        /*滚动区域中间为分割线，只要滚动到达这个点，就高亮当前导航，可以这样实现*/
+        view-timeline-inset: 60% 40%;
+        /*完整写法是 50% 50%*/
+    }
+
+    .content>h2 {
+        animation: active;
+        animation-timeline: var(--s);
+    }
+
+    nav {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        background: #fff;
+        padding: 10px 0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    nav>a {
+        position: relative;
+        display: block;
+        line-height: 2;
+        padding: 0 15px;
+        font-size: 14px;
+        color: #191919;
+        text-decoration: none;
+        /*滚动联动核心代码*/
+        animation: active;
+        animation-timeline: var(--s);
+    }
+
+    /*滚动联动核心代码*/
+    @keyframes active {
+
+        0%,
+        100% {
+            color: #6f00ff;
+            border-color: #6f00ff;
+        }
+    }
+
+    nav>a:hover {
+        background-color: #d5d5d54a;
+    }
+
+    section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    section span {
+        width: 30%;
+        height: 100px;
+        border-radius: 4px;
+        background-color: #E4CCFF;
+    }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="#t1" style="--s: --t1">一、标题一</a>
+        <a href="#t2" style="--s: --t2">二、标题二</a>
+        <a href="#t3" style="--s: --t3">三、标题三</a>
+        <a href="#t4" style="--s: --t4">四、标题四</a>
+        <a href="#t5" style="--s: --t5">五、标题五</a>
+        <a href="#t6" style="--s: --t6">六、标题六</a>
+    </nav>
+    <h1>CSS 电梯导航</h1>
+    <h3>总结</h3>
+    <ul>
+        <li>滚动锚定可以借助a标签和#id实现自动滚动跳转</li>
+        <li>scroll-behavior: smooth可以实现平滑滚动</li>
+        <li>默认情况下，CSS 滚动驱动作用范围只能影响到子元素，但是通过timeline-scope，可以让任意元素都可以受到滚动驱动的影响。</li>
+        <li>利用timeline-scope，我们可以将每个内容的位置状态和每个导航的选中状态联动起来</li>
+        <li>右边的导航会同时选中多个是因为左边的滚动视区太大了，可以同时包含多个内容区域</li>
+        <li>可以用view-timeline-inset来手动改变视区范围，缩小成一条线，这样无论怎样滚动，都只会匹配一个区域</li>
+        <li>兼容性还不足，目前是Chrome 116+</li>
+    </ul>
+    <div class="content" style="--s: --t1">
+        <h2 id="t1">一、标题一</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+    <div class="content" style="--s: --t2">
+        <h2 id="t2">二、标题二</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+    <div class="content" style="--s: --t3">
+        <h2 id="t3">三、标题三</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+    <div class="content" style="--s: --t4">
+        <h2 id="t4">四、标题四</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+    <div class="content" style="--s: --t5">
+        <h2 id="t5">五、标题五</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+    <div class="content" style="--s: --t6">
+        <h2 id="t6">六、标题六</h2>
+        <section>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </section>
+    </div>
+</body>
+
+</html>
